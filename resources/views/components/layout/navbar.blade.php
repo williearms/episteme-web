@@ -10,16 +10,17 @@
         </div>
 
         <nav class="hidden md:flex items-center space-x-8">
-            <a href="#explore" class="text-primary font-semibold border-b-2 border-accent pb-1 text-label-md transition-colors duration-150">Explore</a>
-            <a href="#categories" class="text-text-muted font-medium hover:text-primary transition-colors duration-150 text-label-md">Categories</a>
-            <a href="#faculty" class="text-text-muted font-medium hover:text-primary transition-colors duration-150 text-label-md">Instructors</a>
-            <a href="#events" class="text-text-muted font-medium hover:text-primary transition-colors duration-150 text-label-md">Live Events</a>
+            <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'text-primary font-semibold border-b-2 border-accent pb-1' : 'text-text-muted font-medium hover:text-primary' }} transition-colors duration-150 text-label-md">Explore</a>
+            <a href="{{ url('/#categories') }}" class="text-text-muted font-medium hover:text-primary transition-colors duration-150 text-label-md">Categories</a>
+            <a href="{{ url('/#faculty') }}" class="text-text-muted font-medium hover:text-primary transition-colors duration-150 text-label-md">Instructors</a>
+            <a href="{{ url('/#events') }}" class="text-text-muted font-medium hover:text-primary transition-colors duration-150 text-label-md">Live Events</a>
         </nav>
 
         <div class="flex items-center gap-3.5">
-            <div class="hidden lg:block">
-                <x-ui.input placeholder="Search catalog..." />
-            </div>
+            <form method="GET" action="{{ route('products.index') }}" class="hidden lg:block" role="search" aria-label="Search products">
+                <label for="nav-search" class="sr-only">Search catalog</label>
+                <x-ui.input id="nav-search" name="search" value="{{ request('search') }}" placeholder="Search catalog..." />
+            </form>
             <a href="#login" class="text-label-md font-medium text-text hover:text-primary px-3 py-2 transition-colors duration-150">Log In</a>
             <x-ui.button href="#get-started" size="sm">Get Started</x-ui.button>
         </div>

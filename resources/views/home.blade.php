@@ -21,32 +21,34 @@
                     </p>
 
                     {{-- Prominent search --}}
-                    <div class="pt-2 max-w-xl">
+                    <form method="GET" action="{{ route('products.index') }}" class="pt-2 max-w-xl" role="search" aria-label="Search products">
                         <div class="bg-surface border border-border/40 rounded-card p-2 shadow-sm focus-within:border-accent transition-all">
                             <div class="flex items-center gap-3 px-2">
-                                <span class="material-symbols-outlined text-outline">search</span>
-                                <input type="text" placeholder="Search courses, webinars, workshops..." class="w-full bg-transparent border-none text-body-md text-text placeholder:text-outline focus:ring-0 p-1">
-                                <button type="button" class="bg-inverse hover:bg-primary text-inverse-text font-medium text-label-md px-4 py-2.5 rounded-md transition-colors">
+                                <span class="material-symbols-outlined text-outline" aria-hidden="true">search</span>
+                                <label for="hero-search" class="sr-only">Search courses, webinars, workshops</label>
+                                <input type="search" id="hero-search" name="search" placeholder="Search courses, webinars, workshops..." class="w-full bg-transparent border-none text-body-md text-text placeholder:text-outline focus:ring-0 p-1">
+                                <button type="submit" class="bg-inverse hover:bg-primary text-inverse-text font-medium text-label-md px-4 py-2.5 rounded-md transition-colors">
                                     Search
                                 </button>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-2 mt-3 pt-1">
-                            <span class="text-label-sm text-outline uppercase tracking-wider">Trending:</span>
-                            <a href="#" class="px-2.5 py-1 rounded-full bg-surface-subtle hover:bg-surface-muted border border-border/40 text-label-sm text-text-muted transition-colors">Data Science</a>
-                            <a href="#" class="px-2.5 py-1 rounded-full bg-surface-subtle hover:bg-surface-muted border border-border/40 text-label-sm text-text-muted transition-colors">AI Systems</a>
-                            <a href="#" class="px-2.5 py-1 rounded-full bg-surface-subtle hover:bg-surface-muted border border-border/40 text-label-sm text-text-muted transition-colors">Executive Leadership</a>
-                            <a href="#" class="px-2.5 py-1 rounded-full bg-surface-subtle hover:bg-surface-muted border border-border/40 text-label-sm text-text-muted transition-colors">System Architecture</a>
-                        </div>
-                    </div>
+                        @if ($categories->isNotEmpty())
+                            <div class="flex flex-wrap items-center gap-2 mt-3 pt-1">
+                                <span class="text-label-sm text-outline uppercase tracking-wider">Trending:</span>
+                                @foreach ($categories->take(4) as $category)
+                                    <a href="{{ route('categories.show', $category) }}" class="px-2.5 py-1 rounded-full bg-surface-subtle hover:bg-surface-muted border border-border/40 text-label-sm text-text-muted transition-colors">{{ $category->name }}</a>
+                                @endforeach
+                            </div>
+                        @endif
+                    </form>
 
                     <div class="flex items-center gap-5 pt-3">
                         <x-ui.button href="#explore" size="lg" class="flex items-center gap-2">
                             <span>Explore learning</span>
                             <span class="material-symbols-outlined text-sm">arrow_forward</span>
                         </x-ui.button>
-                        <a href="#catalog" class="text-text hover:text-primary font-semibold text-label-md transition-colors flex items-center gap-1">
+                        <a href="{{ route('products.index') }}" class="text-text hover:text-primary font-semibold text-label-md transition-colors flex items-center gap-1">
                             Browse all products &rarr;
                         </a>
                     </div>
@@ -132,104 +134,56 @@
             <x-slot:lead>Curated learning experiences for people who want to build real capability.</x-slot:lead>
             <x-slot:trailing>
                 <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" class="bg-accent text-text font-semibold px-3.5 py-1.5 rounded-md border border-accent text-label-md transition-all">All</button>
-                    <button type="button" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Courses</button>
-                    <button type="button" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Live Workshops</button>
-                    <button type="button" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">1-on-1 Mentoring</button>
-                    <button type="button" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Webinars</button>
+                    <a href="{{ route('products.index') }}" class="bg-accent text-text font-semibold px-3.5 py-1.5 rounded-md border border-accent text-label-md transition-all">All</a>
+                    <a href="{{ route('products.index', ['type' => 'course']) }}" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Courses</a>
+                    <a href="{{ route('products.index', ['type' => 'workshop']) }}" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Workshops</a>
+                    <a href="{{ route('products.index', ['type' => 'mentoring']) }}" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Mentoring</a>
+                    <a href="{{ route('products.index', ['type' => 'webinar']) }}" class="bg-surface hover:bg-surface-subtle text-text-muted hover:text-text px-3.5 py-1.5 rounded-md border border-border/40 text-label-md transition-all">Webinars</a>
                 </div>
             </x-slot:trailing>
             Explore what's worth learning.
         </x-ui.section-heading>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <x-product.card
-                image="https://lh3.googleusercontent.com/aida-public/AB6AXuBp8LIGH6_RP-xrEz8KF404oRcP4CBR0GOC0ZxY7QezCixOIUPPrDZmNVUI10T_qMqO9mmHE3XqkgkJ-irL5fd2Hrkm2tqtTMfxqc5dUbYQhQdFS6j3iNBKqGcHvZHxm0dKmVEcddNkTyR06BCFeHBae7vtIE-cEytiGNJlsacwk_OUIMvl096djni1n-1wCh-WpLLwX3ZPLgLok7eiTr_0EfuPUGxzgrmxlsKYE5DujfLOdebZwmjC5Q"
-                image-alt="Architectural workspace with code on a matte monitor and warm studio lighting."
-                type-label="Course"
-                type-variant="neutral"
-                meta="Self-paced · Beginner"
-                rating="4.8"
-                learners="128 learners"
-                title="Python for Data Analysis"
-                description="Foundational computational workflows, pandas serialization, and automated analytical pipelines."
-                instructor="Dr. Ahmad Pratama"
-                price="Rp299.000"
-            />
-            <x-product.card
-                image="https://lh3.googleusercontent.com/aida-public/AB6AXuC9tnoeWXMD98ZIurZKhCvwQsCtk_Sxm0tY4Fc0kLLMZgE7R3MCwkv0rpNxZzY_ZVvtI9YYREqi4AYqImTdwhXDSZ4Czi_2Ba3E-DYQoskXzuLmK3llcxQYnnnvccEw2UJXB4t1hA5e3CB55EAK_6q_s5M338xgLETsV0lIki_zWEFWmEw3Jfm8uc7kFqQk9Xonof20nv4XXOtT6FBaBFts7lV44o7vOU9f8uoksHgnzfSQTTgQQhcVNQ"
-                image-alt="Technical diagram of distributed server nodes and network consensus trees."
-                type-label="Workshop"
-                type-variant="accent"
-                meta="Live · Advanced"
-                rating="4.9"
-                learners="84 learners"
-                title="Distributed Systems at Scale"
-                description="Consensus protocols, Raft implementations, partition tolerance, and zero-downtime migrations."
-                instructor="Elena Vance"
-                price="Rp1.450.000"
-            />
-            <x-product.card
-                image="https://lh3.googleusercontent.com/aida-public/AB6AXuBcnvdT-iJpTI7z3bM4w5WWf_IfjB4hdfHjMPcSm-WU3mL6sgmi7uPeJXYNde-I1LVPkSYLZ3-Ke_3CaK-WN_p4lBbDUC1CrzeC3vhISkznH30GSUuPDmvv7Y_RT_9NfsIcrg8mAx0QFw6J0z-Buxg41kh3UwWR3a69h8Qc4YDuedkR7krZIODlZybkZzfz7P_EPlL0_tqQKQCIVW99fXGVCCTw5JJxtV4dgzHGA6r05SF1ZGccBZQRZg"
-                image-alt="Executive whiteboard with strategic framework matrices and decision trees."
-                type-label="Webinar"
-                type-variant="neutral"
-                meta="Live Event · Interm."
-                rating="4.9"
-                learners="310 learners"
-                title="AI Product Strategy & Governance"
-                description="Risk matrices, model audit standards, compliance guardrails, and executive decision heuristics."
-                instructor="Marcus Chen"
-                price="Rp185.000"
-            />
-            <x-product.card
-                image="https://lh3.googleusercontent.com/aida-public/AB6AXuDFCKrLFu4ePRY9jSfUd_SqToIp4xXbQKgrgQ2HytmZREJepkc6tb9KS1fE_ZShLN4osi2_Md3N7gmfYsOPVXobYhKhImQP99A02pRyTIZB2R95NsJPRaIH9AUYCN4qh6PUB69DtFG6EWM6qOLJT6MTOYhYCQAZwKNpqWMX_5supQxpvmYaWJBn-4f4IZm1yUQzIVAKt3xW3MXMwhi7wzYcthluw84Bvzxl-Y33pkIAOFXRSqR43Bl8jg"
-                image-alt="Focused technical one-on-one consultation over architectural schematics."
-                type-label="Mentoring"
-                type-variant="lavender"
-                meta="1-on-1 · Executive"
-                rating="5.0"
-                learners="42 fellows"
-                title="Senior Staff Engineering Mentorship"
-                description="Direct sponsorship, cross-org technical diplomacy, RFC authorship, and architectural governance."
-                instructor="Sarah Jenkins"
-                price="Rp2.200.000"
-            />
-        </div>
+        @if ($featuredProducts->isEmpty())
+            <p class="text-body-md text-text-muted">No featured products yet — check the <a href="{{ route('products.index') }}" class="text-primary font-semibold hover:underline">full catalog</a> instead.</p>
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                @foreach ($featuredProducts as $product)
+                    <x-product.card :product="$product" />
+                @endforeach
+            </div>
+        @endif
     </section>
 
     {{-- 3. Explore by Discipline --}}
     <section id="categories" class="py-20 bg-surface-subtle/40 border-b border-border/40">
         <div class="max-w-[1360px] mx-auto px-6 lg:px-16">
             <x-ui.section-heading eyebrow="Taxonomy">
-                <x-slot:trailing>
-                    <a href="#" class="text-primary font-semibold text-label-md hover:underline">View all 24 sub-disciplines &rarr;</a>
-                </x-slot:trailing>
                 Explore by discipline
             </x-ui.section-heading>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                @php
-                    $categories = [
-                        ['icon' => 'analytics', 'name' => 'Data Science', 'desc' => 'Inferential statistics, deep pipelines & predictive tooling.', 'meta' => '32 Modules · 8 Mentors', 'iconBg' => 'bg-primary-soft', 'iconText' => 'text-primary'],
-                        ['icon' => 'psychology', 'name' => 'Artificial Intelligence', 'desc' => 'Transformer architectures, fine-tuning & agentic models.', 'meta' => '44 Modules · 12 Mentors', 'iconBg' => 'bg-surface-muted', 'iconText' => 'text-primary'],
-                        ['icon' => 'memory', 'name' => 'Systems Programming', 'desc' => 'Rust concurrency, memory safety, kernel modules & OS logic.', 'meta' => '28 Modules · 6 Mentors', 'iconBg' => 'bg-surface-strong', 'iconText' => 'text-text'],
-                        ['icon' => 'layers', 'name' => 'Product Design', 'desc' => 'Design systems, cognitive ergonomics & information hierarchy.', 'meta' => '19 Modules · 5 Mentors', 'iconBg' => 'bg-lavender-soft', 'iconText' => 'text-lavender'],
-                        ['icon' => 'corporate_fare', 'name' => 'Executive Business', 'desc' => 'Capital allocation, team topology & high-stakes negotiation.', 'meta' => '22 Modules · 7 Mentors', 'iconBg' => 'bg-surface-strong', 'iconText' => 'text-text'],
-                        ['icon' => 'science', 'name' => 'Academic Research', 'desc' => 'Peer review methodology, hypothesis synthesis & writing.', 'meta' => '15 Modules · 4 Mentors', 'iconBg' => 'bg-surface-muted', 'iconText' => 'text-primary'],
-                        ['icon' => 'security', 'name' => 'Cryptography & Security', 'desc' => 'Zero-knowledge proofs, threat modeling & binary forensics.', 'meta' => '17 Modules · 5 Mentors', 'iconBg' => 'bg-surface-highest', 'iconText' => 'text-primary'],
-                        ['icon' => 'candlestick_chart', 'name' => 'Quantitative Finance', 'desc' => 'Stochastic calculus, order book modeling & risk arbitrage.', 'meta' => '14 Modules · 4 Mentors', 'iconBg' => 'bg-primary-soft/40', 'iconText' => 'text-primary'],
-                    ];
-                @endphp
+            @php
+                $categoryPalette = [
+                    ['bg' => 'bg-primary-soft', 'text' => 'text-primary'],
+                    ['bg' => 'bg-surface-muted', 'text' => 'text-primary'],
+                    ['bg' => 'bg-surface-strong', 'text' => 'text-text'],
+                    ['bg' => 'bg-lavender-soft', 'text' => 'text-lavender'],
+                    ['bg' => 'bg-surface-highest', 'text' => 'text-primary'],
+                ];
+            @endphp
 
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach ($categories as $category)
-                    <a href="#" class="bg-surface border border-border/40 p-6 rounded-card hover:border-accent hover:-translate-y-0.5 transition-all group">
-                        <div class="w-10 h-10 rounded-md {{ $category['iconBg'] }} flex items-center justify-center {{ $category['iconText'] }} mb-4">
-                            <span class="material-symbols-outlined">{{ $category['icon'] }}</span>
+                    @php $style = $categoryPalette[$loop->index % count($categoryPalette)]; @endphp
+                    <a href="{{ route('categories.show', $category) }}" class="bg-surface border border-border/40 p-6 rounded-card hover:border-accent hover:-translate-y-0.5 transition-all group">
+                        <div class="w-10 h-10 rounded-md {{ $style['bg'] }} flex items-center justify-center {{ $style['text'] }} mb-4">
+                            <span class="material-symbols-outlined" aria-hidden="true">{{ $category->icon ?? 'category' }}</span>
                         </div>
-                        <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors">{{ $category['name'] }}</h3>
-                        <p class="text-body-sm text-text-muted mt-1">{{ $category['desc'] }}</p>
-                        <span class="inline-block mt-4 text-code-sm font-mono text-outline">{{ $category['meta'] }}</span>
+                        <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors">{{ $category->name }}</h3>
+                        @if ($category->description)
+                            <p class="text-body-sm text-text-muted mt-1">{{ $category->description }}</p>
+                        @endif
+                        <span class="inline-block mt-4 text-code-sm font-mono text-outline">{{ $category->products_count }} {{ Str::plural('product', $category->products_count) }}</span>
                     </a>
                 @endforeach
             </div>
@@ -288,32 +242,21 @@
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <x-instructor.card
-                avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuB9VhcdnCZUIKNyFOsEgjQnqZbTxomSWUJxTcQBNpfDN6uhRPqc6PfTsCdkHjxyVoM0Bf5y9cfZpN9mMw7XQtu6tgDSPUfzS5Ar5yudkWrUfoejTxNEv_f1Sf_Tw-JIlXO8K1XURNff2o2fuh71s0zdvPGF4oW3jp_s4GDLXpcZlKhsAk4bioZKzlmcubomL56lvD5AWnd-vQ9p5D6LxffFa6EQ4KWV7ulXoK_Q_3UVhNT8m1P2oI0ulQ"
-                name="Dr. Ahmad Pratama"
-                role="Ex-Principal Data Scientist @ Tokopedia"
-                bio="Specializes in high-volume time series modeling and high-throughput real-time feature stores."
-                :tags="['Python', 'Feature Store', 'BigQuery']"
-                footer-label="4 Active Courses"
-            />
-            <x-instructor.card
-                avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuCLlSRsLgNtShDbSmc6yZmlRhMwRdF1zr8nymobSbvVoLee8vjUAe18rwOJS-QgAP96hZIUwRbdtgDwKJplZ2J4rQD3nH-K5nQFXcAp5ItrnVAocQiMYmwyuFG_s9AbiioMQJGKqDIsa9L7FpiwfI1Fm0dGjx4ga-Iel_dxw1ifkHZK093F0_KXmU-6bsAmOERuOf1ShNfUBQuy5uJH7xE_8sJ_3YsiMH62mzoR43j5PiAQIksth_2GHw"
-                name="Elena Vance"
-                role="VP of Infrastructure @ CloudScale Labs"
-                bio="Authored distributed consensus tooling processing over 40M events per second with zero data loss."
-                :tags="['Distributed Systems', 'Rust', 'Kubernetes']"
-                footer-label="2 Live Workshops"
-            />
-            <x-instructor.card
-                avatar="https://lh3.googleusercontent.com/aida-public/AB6AXuAllW4FrcZuXTRgxXk9lVJw787hKBYSrHAEJtZCUDWVIPyPEk4RFUDv-jyWgAiU4aMeeBL1lWHgT9FOaupmrnQRRed4mCuDwj1bOuEl1pTBzZDi_SGWmkxdpZUr4VBwKm2hm0_ndOs44vPUaxAjwLePyV3RDn0b2rvNJp6cpWw8coFgAxeX_qYl3_H-V2LbIMWnz1_FRZ3dTW7kMG-X0JL3OJ4CDAaB0ncxdkDCr64ZVJiPBQxuoMk9HQ"
-                name="Sarah Jenkins"
-                role="Distinguished Fellow & Ex-Staff @ Stripe"
-                bio="Advises founders and engineering vice presidents on architecture governance, scale limits, and tech debt."
-                :tags="['Staff Plus', 'Architecture', 'Mentoring']"
-                footer-label="1-on-1 Mentorship"
-            />
-        </div>
+        @if ($instructors->isEmpty())
+            <p class="text-body-md text-text-muted">No published instructors yet.</p>
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @foreach ($instructors as $instructor)
+                    <x-instructor.card
+                        :avatar="$instructor->avatar"
+                        :name="$instructor->name"
+                        :role="$instructor->headline"
+                        :bio="$instructor->bio"
+                        :footer-label="$instructor->products_count.' published '.\Illuminate\Support\Str::plural('product', $instructor->products_count)"
+                    />
+                @endforeach
+            </div>
+        @endif
     </section>
 
     {{-- 6. Outcome & Capability Framework --}}
@@ -359,53 +302,49 @@
 
     {{-- 7. Upcoming Live Events --}}
     <section id="events" class="py-20 max-w-[1360px] mx-auto px-6 lg:px-16 border-b border-border/40">
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-            <div>
-                <span class="font-mono text-code-sm text-primary uppercase tracking-wider font-semibold">Calendar</span>
-                <h2 class="text-headline-xl-mobile md:text-headline-xl text-text tracking-tight mt-1">
-                    Upcoming live events
-                </h2>
-            </div>
-            <a href="#" class="text-primary font-semibold text-label-md hover:underline mt-4 md:mt-0">
-                Subscribe to iCal schedule &rarr;
-            </a>
+        <div class="mb-12">
+            <span class="font-mono text-code-sm text-primary uppercase tracking-wider font-semibold">Calendar</span>
+            <h2 class="text-headline-xl-mobile md:text-headline-xl text-text tracking-tight mt-1">
+                Upcoming live events
+            </h2>
         </div>
 
-        <div class="divide-y divide-border/40 border-y border-border/40">
-            @php
-                $events = [
-                    ['day' => '19', 'mon' => 'OCT', 'tag' => 'Live Sprint', 'time' => '19:00 - 21:30 WIB', 'title' => 'High-Concurrency Rust: Actors vs CSP Patterns', 'host' => 'Elena Vance'],
-                    ['day' => '27', 'mon' => 'OCT', 'tag' => 'Executive Webinar', 'time' => '14:00 - 16:00 WIB', 'title' => 'Boardroom AI Risk Heuristics & Audit Readiness', 'host' => 'Marcus Chen'],
-                    ['day' => '04', 'mon' => 'NOV', 'tag' => 'Faculty Roundtable', 'time' => '20:00 - 22:00 WIB', 'title' => 'Staff Plus Career Transitions: Technical Influence at Scale', 'host' => 'Sarah Jenkins'],
-                ];
-            @endphp
-
-            @foreach ($events as $event)
-                <div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-surface-subtle/30 px-3 -mx-3 rounded-md transition-colors">
-                    <div class="flex items-start md:items-center gap-6">
-                        <div class="flex flex-col text-center w-16 flex-shrink-0 bg-surface p-2 rounded-md border border-border/40">
-                            <span class="font-mono text-headline-sm font-bold text-text">{{ $event['day'] }}</span>
-                            <span class="text-[11px] font-semibold text-outline tracking-wider uppercase">{{ $event['mon'] }}</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="bg-surface-strong text-primary text-label-sm px-2 py-0.5 rounded">{{ $event['tag'] }}</span>
-                                <span class="text-code-sm font-mono text-outline">{{ $event['time'] }}</span>
+        @if ($upcomingEvents->isEmpty())
+            <p class="text-body-md text-text-muted">No upcoming events scheduled right now — check the <a href="{{ route('products.index', ['type' => 'webinar']) }}" class="text-primary font-semibold hover:underline">webinars &amp; workshops</a> catalog instead.</p>
+        @else
+            <div class="divide-y divide-border/40 border-y border-border/40">
+                @foreach ($upcomingEvents as $event)
+                    @php $eventDate = \Illuminate\Support\Carbon::parse($event->meta['event_date']); @endphp
+                    <div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-surface-subtle/30 px-3 -mx-3 rounded-md transition-colors">
+                        <div class="flex items-start md:items-center gap-6">
+                            <div class="flex flex-col text-center w-16 flex-shrink-0 bg-surface p-2 rounded-md border border-border/40">
+                                <span class="font-mono text-headline-sm font-bold text-text">{{ $eventDate->format('d') }}</span>
+                                <span class="text-[11px] font-semibold text-outline tracking-wider uppercase">{{ $eventDate->format('M') }}</span>
                             </div>
-                            <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors">
-                                {{ $event['title'] }}
-                            </h3>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-surface-strong text-primary text-label-sm px-2 py-0.5 rounded">{{ $event->type_label }}</span>
+                                    @if (! empty($event->meta['event_time']))
+                                        <span class="text-code-sm font-mono text-outline">{{ $event->meta['event_time'] }}</span>
+                                    @endif
+                                </div>
+                                <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors">
+                                    <a href="{{ route('products.show', $event) }}" class="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm">{{ $event->title }}</a>
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-6 self-end md:self-center">
+                            @if ($event->instructor)
+                                <span class="text-code-sm font-mono text-outline hidden lg:inline">Host: {{ $event->instructor->name }}</span>
+                            @endif
+                            <a href="{{ route('products.show', $event) }}" class="text-label-md font-semibold text-primary hover:text-primary-hover flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                View event &rarr;
+                            </a>
                         </div>
                     </div>
-                    <div class="flex items-center gap-6 self-end md:self-center">
-                        <span class="text-code-sm font-mono text-outline hidden lg:inline">Host: {{ $event['host'] }}</span>
-                        <a href="#" class="text-label-md font-semibold text-primary hover:text-primary-hover flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                            View event &rarr;
-                        </a>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+                @endforeach
+            </div>
+        @endif
     </section>
 
     {{-- 8. Testimonials --}}

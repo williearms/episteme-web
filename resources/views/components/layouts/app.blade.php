@@ -1,10 +1,28 @@
+@props([
+    'title' => 'Episteme — Knowledge into capability.',
+    'description' => 'Episteme is an education marketplace for courses, workshops, webinars, and mentoring designed to turn learning into practical capability.',
+    'canonical' => null,
+    'ogImage' => null,
+])
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Episteme — Knowledge into capability.' }}</title>
-    <meta name="description" content="{{ $description ?? 'Episteme is an education marketplace for courses, workshops, webinars, and mentoring designed to turn learning into practical capability.' }}">
+    <title>{{ $title }}</title>
+    <meta name="description" content="{{ $description }}">
+    <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
+
+    {{-- Open Graph --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Episteme">
+    <meta property="og:title" content="{{ $title }}">
+    <meta property="og:description" content="{{ $description }}">
+    <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
+    @if ($ogImage)
+        <meta property="og:image" content="{{ $ogImage }}">
+    @endif
 
     {{-- Fonts loaded directly via CDN, matching the Stitch reference. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
