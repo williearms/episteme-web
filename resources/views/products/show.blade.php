@@ -1,5 +1,5 @@
 @php
-    $meta = $product->meta ?? [];
+    use App\Enums\ProductType;
 @endphp
 
 <x-layouts.app
@@ -46,10 +46,10 @@
                             {{ $product->level_label }}
                         </span>
                     @endif
-                    @if ($product->duration)
+                    @if ($product->duration_label)
                         <span class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-[18px] text-outline" aria-hidden="true">schedule</span>
-                            {{ $product->duration }}
+                            {{ $product->duration_label }}
                         </span>
                     @endif
                 </div>
@@ -90,11 +90,11 @@
                     </div>
                 </div>
 
-                @if (! empty($meta['outcomes']))
+                @if (! empty($product->outcomes))
                     <div>
                         <h2 class="text-headline-md text-text mb-4">What you&rsquo;ll learn</h2>
                         <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-                            @foreach ($meta['outcomes'] as $outcome)
+                            @foreach ($product->outcomes as $outcome)
                                 <li class="flex items-start gap-2 text-body-sm text-text-muted">
                                     <span class="material-symbols-outlined text-[18px] text-primary mt-0.5" aria-hidden="true">check_circle</span>
                                     <span>{{ $outcome }}</span>
@@ -104,18 +104,18 @@
                     </div>
                 @endif
 
-                @if (! empty($meta['audience']))
+                @if ($product->audience)
                     <div>
                         <h2 class="text-headline-md text-text mb-4">Who this is for</h2>
-                        <p class="text-body-md text-text-muted">{{ $meta['audience'] }}</p>
+                        <p class="text-body-md text-text-muted">{{ $product->audience }}</p>
                     </div>
                 @endif
 
-                @if (! empty($meta['requirements']))
+                @if (! empty($product->requirements))
                     <div>
                         <h2 class="text-headline-md text-text mb-4">Requirements</h2>
                         <ul class="space-y-2">
-                            @foreach ($meta['requirements'] as $requirement)
+                            @foreach ($product->requirements as $requirement)
                                 <li class="flex items-start gap-2 text-body-sm text-text-muted">
                                     <span class="material-symbols-outlined text-[18px] text-outline mt-0.5" aria-hidden="true">arrow_right</span>
                                     <span>{{ $requirement }}</span>
@@ -125,98 +125,167 @@
                     </div>
                 @endif
 
-                @if (! empty($meta['modules']) || ! empty($meta['lessons']))
+                @if ($product->product_type === ProductType::Course && $product->course)
                     <div>
                         <h2 class="text-headline-md text-text mb-4">Curriculum preview</h2>
-                        <div class="bg-surface border border-border/40 rounded-card p-5 flex items-center gap-8">
-                            @if (! empty($meta['modules']))
+                        <div class="bg-surface border border-border/40 rounded-card p-5 flex flex-wrap items-center gap-8">
+                            @if ($product->course->total_modules)
                                 <div>
-                                    <div class="text-headline-sm font-bold text-text">{{ $meta['modules'] }}</div>
+                                    <div class="text-headline-sm font-bold text-text">{{ $product->course->total_modules }}</div>
                                     <div class="text-label-sm text-outline">Modules</div>
                                 </div>
                             @endif
-                            @if (! empty($meta['lessons']))
+                            @if ($product->course->total_lessons)
                                 <div>
-                                    <div class="text-headline-sm font-bold text-text">{{ $meta['lessons'] }}</div>
+                                    <div class="text-headline-sm font-bold text-text">{{ $product->course->total_lessons }}</div>
                                     <div class="text-label-sm text-outline">Lessons</div>
+                                </div>
+                            @endif
+                            @if ($product->course->delivery_type)
+                                <div>
+                                    <div class="text-headline-sm font-bold text-text">{{ \Illuminate\Support\Str::headline($product->course->delivery_type) }}</div>
+                                    <div class="text-label-sm text-outline">Delivery</div>
                                 </div>
                             @endif
                         </div>
                     </div>
                 @endif
 
-                @if (in_array($product->product_type, ['webinar', 'workshop']) && (! empty($meta['event_date']) || ! empty($meta['location'])))
+                @if ($product->product_type === ProductType::Webinar && $product->webinar)
                     <div>
                         <h2 class="text-headline-md text-text mb-4">Event details</h2>
                         <dl class="bg-surface border border-border/40 rounded-card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @if (! empty($meta['event_date']))
+                            @if ($product->webinar->event_date)
                                 <div>
                                     <dt class="text-label-sm text-outline uppercase tracking-wider">Date</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ \Illuminate\Support\Carbon::parse($meta['event_date'])->translatedFormat('d F Y') }}</dd>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->webinar->event_date->translatedFormat('d F Y') }}</dd>
                                 </div>
                             @endif
-                            @if (! empty($meta['event_time']))
+                            @if ($product->webinar->start_time)
                                 <div>
                                     <dt class="text-label-sm text-outline uppercase tracking-wider">Time</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['event_time'] }}</dd>
+                                    <dd class="text-body-sm text-text mt-1">
+                                        {{ substr($product->webinar->start_time, 0, 5) }}@if ($product->webinar->end_time)&ndash;{{ substr($product->webinar->end_time, 0, 5) }}@endif
+                                        {{ $product->webinar->timezone }}
+                                    </dd>
                                 </div>
                             @endif
-                            @if (! empty($meta['location']))
+                            @if ($product->webinar->platform)
                                 <div>
-                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Location</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['location'] }}</dd>
-                                </div>
-                            @endif
-                            @if (! empty($meta['speaker']))
-                                <div>
-                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Speaker</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['speaker'] }}</dd>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Platform</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->webinar->platform }}</dd>
                                 </div>
                             @endif
                         </dl>
                     </div>
                 @endif
 
-                @if ($product->product_type === 'mentoring' && (! empty($meta['format']) || ! empty($meta['session_duration'])))
+                @if ($product->product_type === ProductType::Workshop && $product->workshop)
+                    <div>
+                        <h2 class="text-headline-md text-text mb-4">Event details</h2>
+                        <dl class="bg-surface border border-border/40 rounded-card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            @if ($product->workshop->event_date)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Date</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->workshop->event_date->translatedFormat('d F Y') }}</dd>
+                                </div>
+                            @endif
+                            @if ($product->workshop->duration_minutes)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Duration</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->workshop->duration_minutes }} minutes</dd>
+                                </div>
+                            @endif
+                            <div>
+                                <dt class="text-label-sm text-outline uppercase tracking-wider">Mode</dt>
+                                <dd class="text-body-sm text-text mt-1">{{ \Illuminate\Support\Str::headline($product->workshop->mode) }}</dd>
+                            </div>
+                            @if ($product->workshop->location)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Location</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->workshop->location }}</dd>
+                                </div>
+                            @endif
+                        </dl>
+                    </div>
+                @endif
+
+                @if ($product->product_type === ProductType::Bootcamp && $product->bootcamp)
+                    <div>
+                        <h2 class="text-headline-md text-text mb-4">Program details</h2>
+                        <dl class="bg-surface border border-border/40 rounded-card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            @if ($product->bootcamp->duration)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Duration</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->bootcamp->duration }}</dd>
+                                </div>
+                            @endif
+                            @if ($product->bootcamp->schedule)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Schedule</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->bootcamp->schedule }}</dd>
+                                </div>
+                            @endif
+                            @if ($product->bootcamp->cohort)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Cohort</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->bootcamp->cohort }}</dd>
+                                </div>
+                            @endif
+                            <div>
+                                <dt class="text-label-sm text-outline uppercase tracking-wider">Delivery mode</dt>
+                                <dd class="text-body-sm text-text mt-1">{{ \Illuminate\Support\Str::headline($product->bootcamp->delivery_mode) }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                @endif
+
+                @if ($product->product_type === ProductType::Mentoring && $product->mentoring)
                     <div>
                         <h2 class="text-headline-md text-text mb-4">Mentoring format</h2>
                         <dl class="bg-surface border border-border/40 rounded-card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @if (! empty($meta['format']))
-                                <div>
-                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Format</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['format'] }}</dd>
-                                </div>
-                            @endif
-                            @if (! empty($meta['session_duration']))
+                            @if ($product->mentoring->session_duration_minutes)
                                 <div>
                                     <dt class="text-label-sm text-outline uppercase tracking-wider">Session duration</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['session_duration'] }}</dd>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->mentoring->session_duration_minutes }} minutes</dd>
                                 </div>
                             @endif
-                            @if (! empty($meta['availability']))
-                                <div class="sm:col-span-2">
-                                    <dt class="text-label-sm text-outline uppercase tracking-wider">Availability</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['availability'] }}</dd>
-                                </div>
-                            @endif
+                            <div>
+                                <dt class="text-label-sm text-outline uppercase tracking-wider">Number of sessions</dt>
+                                <dd class="text-body-sm text-text mt-1">{{ $product->mentoring->number_of_sessions }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-label-sm text-outline uppercase tracking-wider">Session type</dt>
+                                <dd class="text-body-sm text-text mt-1">{{ \Illuminate\Support\Str::headline($product->mentoring->session_type) }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-label-sm text-outline uppercase tracking-wider">Delivery mode</dt>
+                                <dd class="text-body-sm text-text mt-1">{{ \Illuminate\Support\Str::headline($product->mentoring->delivery_mode) }}</dd>
+                            </div>
                         </dl>
                     </div>
                 @endif
 
-                @if ($product->product_type === 'digital-product' && (! empty($meta['file_type']) || ! empty($meta['access_type'])))
+                @if ($product->product_type === ProductType::DigitalProduct && $product->digitalProduct)
                     <div>
                         <h2 class="text-headline-md text-text mb-4">Product format</h2>
                         <dl class="bg-surface border border-border/40 rounded-card p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @if (! empty($meta['file_type']))
+                            @if ($product->digitalProduct->file_type)
                                 <div>
                                     <dt class="text-label-sm text-outline uppercase tracking-wider">File type</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['file_type'] }}</dd>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->digitalProduct->file_type }}</dd>
                                 </div>
                             @endif
-                            @if (! empty($meta['access_type']))
+                            @if ($product->digitalProduct->file_size)
+                                <div>
+                                    <dt class="text-label-sm text-outline uppercase tracking-wider">File size</dt>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->digitalProduct->file_size }}</dd>
+                                </div>
+                            @endif
+                            @if ($product->digitalProduct->access_type)
                                 <div>
                                     <dt class="text-label-sm text-outline uppercase tracking-wider">Access</dt>
-                                    <dd class="text-body-sm text-text mt-1">{{ $meta['access_type'] }}</dd>
+                                    <dd class="text-body-sm text-text mt-1">{{ $product->digitalProduct->access_type }}</dd>
                                 </div>
                             @endif
                         </dl>
@@ -245,10 +314,10 @@
                                 <dd class="text-text font-medium">{{ $product->level_label }}</dd>
                             </div>
                         @endif
-                        @if ($product->duration)
+                        @if ($product->duration_label)
                             <div class="flex items-center justify-between">
                                 <dt class="text-text-muted">Duration</dt>
-                                <dd class="text-text font-medium">{{ $product->duration }}</dd>
+                                <dd class="text-text font-medium">{{ $product->duration_label }}</dd>
                             </div>
                         @endif
                         <div class="flex items-center justify-between pt-3 border-t border-border/40">

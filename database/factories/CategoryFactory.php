@@ -22,6 +22,7 @@ class CategoryFactory extends Factory
             'slug' => Str::slug($name),
             'description' => fake()->sentence(12),
             'icon' => fake()->randomElement(['analytics', 'psychology', 'code', 'layers', 'science', 'public']),
+            'status' => 'active',
         ];
     }
 }

@@ -313,8 +313,8 @@
             <p class="text-body-md text-text-muted">No upcoming events scheduled right now — check the <a href="{{ route('products.index', ['type' => 'webinar']) }}" class="text-primary font-semibold hover:underline">webinars &amp; workshops</a> catalog instead.</p>
         @else
             <div class="divide-y divide-border/40 border-y border-border/40">
-                @foreach ($upcomingEvents as $event)
-                    @php $eventDate = \Illuminate\Support\Carbon::parse($event->meta['event_date']); @endphp
+                @foreach ($upcomingEvents as $row)
+                    @php [$event, $eventDate] = [$row['product'], $row['event_date']]; @endphp
                     <div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-surface-subtle/30 px-3 -mx-3 rounded-md transition-colors">
                         <div class="flex items-start md:items-center gap-6">
                             <div class="flex flex-col text-center w-16 flex-shrink-0 bg-surface p-2 rounded-md border border-border/40">
@@ -324,8 +324,8 @@
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="bg-surface-strong text-primary text-label-sm px-2 py-0.5 rounded">{{ $event->type_label }}</span>
-                                    @if (! empty($event->meta['event_time']))
-                                        <span class="text-code-sm font-mono text-outline">{{ $event->meta['event_time'] }}</span>
+                                    @if ($event->product_type === \App\Enums\ProductType::Webinar && $event->webinar?->start_time)
+                                        <span class="text-code-sm font-mono text-outline">{{ substr($event->webinar->start_time, 0, 5) }} {{ $event->webinar->timezone }}</span>
                                     @endif
                                 </div>
                                 <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors">

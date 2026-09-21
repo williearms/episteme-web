@@ -35,7 +35,7 @@
             <label for="filter-type" class="block text-label-sm font-semibold text-outline uppercase tracking-wider mb-1.5">Type</label>
             <select id="filter-type" name="type" class="w-full bg-surface border border-border/40 rounded-md px-3 py-2 text-body-sm text-text focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent">
                 <option value="">All Types</option>
-                @foreach (\App\Models\Product::TYPES as $value => $label)
+                @foreach (\App\Enums\ProductType::options() as $value => $label)
                     <option value="{{ $value }}" @selected(($filters['type'] ?? null) === $value)>{{ $label }}</option>
                 @endforeach
             </select>

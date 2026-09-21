@@ -55,6 +55,7 @@ class CategorySeeder extends Seeder
                     'name' => $category['name'],
                     'icon' => $category['icon'],
                     'description' => $category['description'],
+                    'status' => 'active',
                 ]
             );
         }

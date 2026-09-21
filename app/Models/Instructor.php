@@ -13,10 +13,16 @@ class Instructor extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'headline',
         'bio',
         'avatar',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function products(): HasMany
     {

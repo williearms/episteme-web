@@ -24,7 +24,7 @@ class ProductController extends Controller
 
         return view('products.index', [
             'products' => $products,
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::active()->orderBy('name')->get(),
             'filters' => $filters,
             'sort' => $sort ?: 'featured',
         ]);
@@ -32,7 +32,7 @@ class ProductController extends Controller
 
     public function show(Product $product): View
     {
-        $product->load(['category', 'instructor']);
+        $product->load(['category', 'instructor', 'course', 'webinar', 'workshop', 'bootcamp', 'mentoring', 'digitalProduct']);
 
         return view('products.show', compact('product'));
     }

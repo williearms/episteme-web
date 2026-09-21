@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\ProductStatus;
+use App\Enums\ProductType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -13,34 +16,11 @@ class Product extends Model
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
 
-    /**
-     * Product types supported for Phase 2 discovery. Values are the stored
-     * `product_type`; commerce/learning behaviour per type is out of scope.
-     */
-    public const TYPES = [
-        'course' => 'Course',
-        'webinar' => 'Webinar',
-        'workshop' => 'Workshop',
-        'bootcamp' => 'Bootcamp',
-        'mentoring' => 'Mentoring',
-        'digital-product' => 'Digital Product',
-    ];
-
     public const LEVELS = [
         'beginner' => 'Beginner',
         'intermediate' => 'Intermediate',
         'advanced' => 'Advanced',
         'all-levels' => 'All Levels',
-    ];
-
-    /** Badge variant per product type — the badge component only offers these three. */
-    private const TYPE_VARIANTS = [
-        'course' => 'neutral',
-        'webinar' => 'neutral',
-        'workshop' => 'accent',
-        'bootcamp' => 'accent',
-        'mentoring' => 'lavender',
-        'digital-product' => 'lavender',
     ];
 
     protected $fillable = [
@@ -50,22 +30,29 @@ class Product extends Model
         'slug',
         'short_description',
         'description',
+        'outcomes',
+        'requirements',
+        'audience',
         'product_type',
         'level',
-        'duration',
         'price',
+        'currency',
         'thumbnail',
         'status',
+        'published_at',
         'featured',
-        'meta',
     ];
 
     protected function casts(): array
     {
         return [
+            'product_type' => ProductType::class,
+            'status' => ProductStatus::class,
             'price' => 'integer',
             'featured' => 'boolean',
-            'meta' => 'array',
+            'published_at' => 'datetime',
+            'outcomes' => 'array',
+            'requirements' => 'array',
         ];
     }
 
@@ -76,7 +63,8 @@ class Product extends Model
 
     /**
      * Public route-model binding only ever resolves published products —
-     * an unpublished or nonexistent slug falls through to Laravel's normal 404.
+     * an unpublished (draft/archived) or nonexistent slug falls through to
+     * Laravel's normal 404.
      */
     public function resolveRouteBinding($value, $field = null): ?self
     {
@@ -93,14 +81,78 @@ class Product extends Model
         return $this->belongsTo(Instructor::class);
     }
 
+    public function course(): HasOne
+    {
+        return $this->hasOne(Course::class);
+    }
+
+    public function webinar(): HasOne
+    {
+        return $this->hasOne(Webinar::class);
+    }
+
+    public function workshop(): HasOne
+    {
+        return $this->hasOne(Workshop::class);
+    }
+
+    public function bootcamp(): HasOne
+    {
+        return $this->hasOne(Bootcamp::class);
+    }
+
+    public function mentoring(): HasOne
+    {
+        return $this->hasOne(Mentoring::class);
+    }
+
+    public function digitalProduct(): HasOne
+    {
+        return $this->hasOne(DigitalProduct::class);
+    }
+
+    /** The one subtype relation that actually matches this product's type. */
+    public function getTypeDetailsAttribute(): ?Model
+    {
+        return match ($this->product_type) {
+            ProductType::Course => $this->course,
+            ProductType::Webinar => $this->webinar,
+            ProductType::Workshop => $this->workshop,
+            ProductType::Bootcamp => $this->bootcamp,
+            ProductType::Mentoring => $this->mentoring,
+            ProductType::DigitalProduct => $this->digitalProduct,
+        };
+    }
+
+    /** Eager-load every subtype relation — cheap (6 constrained queries, not per-row) and avoids N+1. */
+    public function scopeWithTypeDetails(Builder $query): Builder
+    {
+        return $query->with(['course', 'webinar', 'workshop', 'bootcamp', 'mentoring', 'digitalProduct']);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('status', 'published');
+        return $query->where('status', ProductStatus::Published);
     }
 
     public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('featured', true);
+    }
+
+    public function scopeOfType(Builder $query, ProductType|string $type): Builder
+    {
+        return $query->where('product_type', $type);
+    }
+
+    public function scopeForCategory(Builder $query, string $categorySlug): Builder
+    {
+        return $query->whereHas('category', fn (Builder $q) => $q->where('slug', $categorySlug));
+    }
+
+    public function scopeByInstructor(Builder $query, int $instructorId): Builder
+    {
+        return $query->where('instructor_id', $instructorId);
     }
 
     /**
@@ -121,10 +173,8 @@ class Product extends Model
                         ->orWhereHas('category', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
                 });
             })
-            ->when($filters['category'] ?? null, fn (Builder $q, string $slug) => $q->whereHas(
-                'category', fn (Builder $q) => $q->where('slug', $slug)
-            ))
-            ->when($filters['type'] ?? null, fn (Builder $q, string $type) => $q->where('product_type', $type))
+            ->when($filters['category'] ?? null, fn (Builder $q, string $slug) => $q->forCategory($slug))
+            ->when($filters['type'] ?? null, fn (Builder $q, string $type) => $q->ofType($type))
             ->when($filters['level'] ?? null, fn (Builder $q, string $level) => $q->where('level', $level))
             ->when($filters['price'] ?? null, function (Builder $q, string $price) {
                 match ($price) {
@@ -147,12 +197,12 @@ class Product extends Model
 
     public function getTypeLabelAttribute(): string
     {
-        return self::TYPES[$this->product_type] ?? Str::headline($this->product_type);
+        return $this->product_type->label();
     }
 
     public function getTypeVariantAttribute(): string
     {
-        return self::TYPE_VARIANTS[$this->product_type] ?? 'neutral';
+        return $this->product_type->badgeVariant();
     }
 
     public function getLevelLabelAttribute(): ?string
@@ -178,11 +228,12 @@ class Product extends Model
 
     public function getCtaLabelAttribute(): string
     {
-        return match ($this->product_type) {
-            'webinar', 'workshop' => 'Register',
-            'mentoring' => 'Book a Session',
-            'digital-product' => 'Get Access',
-            default => 'Enroll Now',
-        };
+        return $this->product_type->ctaLabel();
+    }
+
+    /** Human-readable duration, derived from whichever subtype is attached. */
+    public function getDurationLabelAttribute(): ?string
+    {
+        return $this->type_details?->durationLabel();
     }
 }

@@ -10,14 +10,21 @@
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             >
             <x-ui.badge :variant="$product->type_variant" class="absolute top-3 left-3">{{ $product->type_label }}</x-ui.badge>
-            @if ($product->level_label || $product->duration)
-                <x-ui.badge variant="meta" class="absolute top-3 right-3">
-                    {{ collect([$product->level_label, $product->duration])->filter()->join(' · ') }}
-                </x-ui.badge>
+            @if ($product->level_label)
+                <x-ui.badge variant="meta" class="absolute top-3 right-3">{{ $product->level_label }}</x-ui.badge>
+            @endif
+            @if ($product->featured)
+                <span class="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-inverse/90 text-inverse-text text-label-sm font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm">
+                    <span class="material-symbols-outlined text-[14px] text-accent" aria-hidden="true">star</span>
+                    Featured
+                </span>
             @endif
         </div>
         <div class="p-5">
-            <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors">
+            @if ($product->category)
+                <span class="text-label-sm text-outline">{{ $product->category->name }}</span>
+            @endif
+            <h3 class="text-headline-sm text-text group-hover:text-primary transition-colors mt-1">
                 <a href="{{ route('products.show', $product) }}" class="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
                     <span class="absolute inset-0" aria-hidden="true"></span>
                     {{ $product->title }}

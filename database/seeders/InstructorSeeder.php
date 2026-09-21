@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Instructor;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class InstructorSeeder extends Seeder
 {
@@ -51,6 +52,7 @@ class InstructorSeeder extends Seeder
             Instructor::updateOrCreate(
                 ['name' => $instructor['name']],
                 [
+                    'slug' => Str::slug($instructor['name']),
                     'headline' => $instructor['headline'],
                     'bio' => $instructor['bio'],
                 ]

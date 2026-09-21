@@ -25,7 +25,7 @@ class CategoryController extends Controller
         return view('categories.show', [
             'category' => $category,
             'products' => $products,
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::active()->orderBy('name')->get(),
             'filters' => $filters,
             'sort' => $sort ?: 'featured',
         ]);

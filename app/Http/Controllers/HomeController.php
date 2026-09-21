@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProductType;
 use App\Models\Category;
 use App\Models\Instructor;
 use App\Models\Product;
@@ -20,6 +21,7 @@ class HomeController extends Controller
             ->get();
 
         $categories = Category::query()
+            ->active()
             ->withCount(['products' => fn ($query) => $query->published()])
             ->orderBy('name')
             ->get();
@@ -33,12 +35,15 @@ class HomeController extends Controller
 
         $upcomingEvents = Product::query()
             ->published()
-            ->whereIn('product_type', ['webinar', 'workshop'])
-            ->whereNotNull('meta->event_date')
-            ->with('instructor')
+            ->whereIn('product_type', [ProductType::Webinar, ProductType::Workshop])
+            ->with(['instructor', 'webinar', 'workshop'])
             ->get()
-            ->filter(fn (Product $product) => ($product->meta['event_date'] ?? null) >= now()->toDateString())
-            ->sortBy(fn (Product $product) => $product->meta['event_date'])
+            ->map(fn (Product $product) => [
+                'product' => $product,
+                'event_date' => $product->type_details?->event_date,
+            ])
+            ->filter(fn (array $row) => $row['event_date'] && $row['event_date']->isFuture())
+            ->sortBy(fn (array $row) => $row['event_date'])
             ->take(3)
             ->values();
 

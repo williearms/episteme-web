@@ -2,9 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\ProductStatus;
+use App\Enums\ProductType;
 use App\Models\Category;
 use App\Models\Instructor;
-use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -25,12 +26,13 @@ class ProductFactory extends Factory
             'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 999),
             'short_description' => fake()->sentence(15),
             'description' => fake()->paragraphs(3, true),
-            'product_type' => fake()->randomElement(array_keys(Product::TYPES)),
-            'level' => fake()->randomElement(array_keys(Product::LEVELS)),
-            'duration' => fake()->randomElement(['2 hours', '4 weeks', '6 weeks', '90 minutes', '8 sessions']),
+            'product_type' => fake()->randomElement(ProductType::cases()),
+            'level' => fake()->randomElement(array_keys(\App\Models\Product::LEVELS)),
             'price' => $price,
+            'currency' => 'IDR',
             'thumbnail' => null,
-            'status' => 'published',
+            'status' => ProductStatus::Published,
+            'published_at' => now(),
             'featured' => false,
         ];
     }
@@ -42,6 +44,11 @@ class ProductFactory extends Factory
 
     public function draft(): static
     {
-        return $this->state(fn () => ['status' => 'draft']);
+        return $this->state(fn () => ['status' => ProductStatus::Draft, 'published_at' => null]);
+    }
+
+    public function archived(): static
+    {
+        return $this->state(fn () => ['status' => ProductStatus::Archived, 'published_at' => null]);
     }
 }
