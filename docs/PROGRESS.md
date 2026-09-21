@@ -95,6 +95,100 @@ remaining sections — formats, faculty, dark framework band, events, testimonia
 full-text content diff, matching section-for-section). No discrepancies found worth fixing further for a
 Phase 1 prototype.
 
+## Phase 3 — Product & Catalog System
+
+- [x] Inspected Phase 2 implementation before changing anything (migrations, models, controllers,
+  routes, Blade components, seeders/factories, tests, catalog/detail pages)
+- [x] Base `Product` model finalized (enums for type/status, `currency`, `published_at`, generic
+  `outcomes`/`requirements`/`audience`; `duration` and `meta` columns removed)
+- [x] Course subtype
+- [x] Webinar subtype
+- [x] Workshop subtype
+- [x] Bootcamp subtype
+- [x] Mentoring subtype
+- [x] Digital Product subtype
+- [x] Product status lifecycle (draft/published/archived) via `ProductStatus` enum + `scopePublished()`
+- [x] Pricing normalized (`price` integer + `currency` string, no floats)
+- [x] Category refined (`status` field added, `scopeActive()`)
+- [x] Instructor refined (`slug` field added, unique)
+- [x] Product relationships (`belongsTo` category/instructor, `hasOne` × 6 subtypes, `hasMany` on
+  Category/Instructor) plus scopes: `published`, `featured`, `ofType`, `forCategory`, `byInstructor`,
+  `filter`, `sort`, `withTypeDetails`
+- [x] `ProductType`/`ProductStatus` backed enums (raw strings were getting scattered across
+  controllers/Blade/seeders; `Product::LEVELS` deliberately stayed a plain const — one usage site,
+  not worth an enum)
+- [x] Public catalog compatibility verified (`/products`, `/categories/{slug}`, `/products/{slug}`
+  all still work — search, filters, sort, pagination all re-tested)
+- [x] Product detail pages show type-specific sections per product type
+- [x] Product cards reviewed and adjusted (category label + featured indicator added; duration
+  removed — it's now type-specific, shown on the detail page instead)
+- [x] Slugs unique (product, category, instructor)
+- [x] Seed data covers all 6 product types, both draft and archived states
+- [x] Database integrity (FKs with `cascadeOnDelete` product→subtype, unique `product_id` per
+  subtype table, indexes on `slug`/`product_type`/`status`/`featured`/`price`)
+- [x] Automated tests (18 new + 22 existing, all passing)
+- [x] Visual QA
+- [x] Documentation updated
+
+### Architecture: base product + subtype tables
+
+**Decision:** replaced Phase 2's single `products.meta` JSON column with six one-to-one subtype
+tables (`courses`, `webinars`, `workshops`, `bootcamps`, `mentorings`, `digital_products`), each
+`product_id`-keyed with a unique constraint and `cascadeOnDelete`.
+
+**Why:** the brief explicitly asked for this ("Use a base product plus type-specific tables/models
+... Do not use polymorphic relationships unless there is a clear architectural reason"), and it's a
+genuine improvement over the JSON blob: real columns per type instead of an untyped bag mixing
+event dates with marketing copy; a real FK so a subtype row can never outlive its product; and each
+subtype can evolve its own schema (e.g. adding a `certificate_type` to `courses` later) without
+touching the other five types or the base table.
+
+**Why not polymorphic:** every product has *at most one* subtype, decided entirely by
+`product_type` — there's no case where a `courses` row needs to attach to something other than
+`Product`. A one-to-one FK is simpler to reason about, query, and constrain than a
+`morphable_type`/`morphable_id` pair for a relationship that will only ever point at one model.
+
+**Migration strategy:** rather than one destructive migration, Phase 3 shipped 9 incremental
+migrations — one `normalize_products_table_for_catalog_domain` (add currency/published_at/outcomes/
+requirements/audience, drop duration/meta), six `create_*_table` migrations for the subtypes, and
+two small `add_*` migrations (instructor slug, category status). This repo has no real user data to
+preserve (it's seeded demo content, refreshed with `migrate:fresh --seed` on every environment), so
+the actual database refresh used a fresh migrate rather than a data-preserving UP migration — but
+the migration *files* themselves are additive/incremental, not one big drop-and-recreate, so the
+same sequence would work against a database that did have real data to keep.
+
+**`product_type` value normalization:** Phase 2 used `digital-product` (hyphen); the Phase 3 brief's
+canonical value is `digital_product` (underscore, matching the other snake_case values). Fixed via
+the new `ProductType` enum — there's now exactly one place this value is defined, so this class of
+drift can't recur.
+
+### Visual QA summary — Phase 3 (2026-09-21)
+
+Checked the catalog, and course/webinar/bootcamp/digital-product detail pages, at desktop (1440px)
+and mobile (375px), after the schema/query/view rewrite.
+
+1. **Webinar "Duration" showed the start time** (e.g. "19:00 WIB") instead of an actual duration —
+   caught by reading the rendered sidebar, not by assumption. Fixed `Webinar::durationLabel()` to
+   compute `end_time − start_time` (e.g. "1h 30m") when both are present.
+2. **Digital product "Duration" showed the file type** (e.g. "PDF") — same class of bug, a static
+   file has no duration at all. Fixed `DigitalProduct::durationLabel()` to return `null`, which
+   correctly hides the row/icon rather than showing a nonsensical value.
+3. **Product cards**: new category label and "★ Featured" tag render correctly and match the
+   existing card's spacing/typography/radius — no new visual language introduced.
+4. **Bootcamp detail page** ("Program details": duration/schedule/cohort/delivery mode) is new for
+   Phase 3 (Phase 2 didn't distinguish bootcamp from course) and renders correctly using the design
+   system's existing `<dl>`/card treatment from the webinar/workshop sections.
+5. **Mobile**: catalog filters and product grid remain single-column with no overflow after the
+   card layout change (category label + featured badge didn't push anything off-screen).
+
+### Testing notes
+
+`Vite dev server and the `laravel.test` container's PHP process needed restarting after each round
+of model/Blade changes (`opcache.validate_timestamps=0`, see below) — visual bugs #1 and #2 above
+were only caught because QA was done via a real browser render after restarting, not by trusting
+`php artisan test` output alone (the test suite passed the whole time; it checks presence of text,
+not whether "Duration: PDF" reads as nonsense to a human).
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need
@@ -134,9 +228,12 @@ App: http://localhost:8010
   instructions (composer require + `boost:install`). Boost is agent tooling, unrelated to the
   Episteme product scope; since this task explicitly targets a Docker-only workflow (no host PHP),
   Boost setup was left for a follow-up rather than blocking phase work.
-- Out of scope through Phase 2 (explicitly deferred to later phases): authentication, registration,
-  login, payment gateway, checkout, orders, enrollment, course progress, webinar/mentoring booking,
-  certificates, reviews backend, complex user dashboard, marketplace transaction logic, production
-  deployment. See `docs/PROJECT.md` → "Known limitations (Phase 2)" for Phase-2-specific gaps
-  (no commerce CTA, default-styled pagination, no related-products section, no fabricated
-  "popular" sort).
+- Out of scope through Phase 3 (explicitly deferred to later phases): authentication, registration,
+  login, payment gateway, checkout, orders, enrollment, course progress/modules/lessons/quizzes,
+  webinar/mentoring booking, certificates, reviews backend, complex user dashboard, marketplace
+  transaction logic, Filament CRUD for the new resources, production deployment. See
+  `docs/PROJECT.md` → "Known limitations (Phase 2 & 3)" for specifics.
+- Phase 3 deliberately did **not** touch Filament — the brief was explicit that admin CRUD belongs to
+  a later phase, and the models/relationships/validation are structured so Filament resources can be
+  added later without another schema rewrite (e.g. every subtype is a normal `hasOne`/`belongsTo`
+  relation Filament's relation managers understand natively).
