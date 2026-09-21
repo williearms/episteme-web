@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Episteme — Knowledge into capability.</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Tailwind Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#eaedff",
+            "tertiary": "#6d3bd7",
+            "surface-container-low": "#f2f3ff",
+            "secondary": "#006398",
+            "surface-dim": "#d2d9f4",
+            "on-primary-fixed": "#001e2c",
+            "outline-variant": "#bdc8d1",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-primary-fixed-variant": "#004c69",
+            "primary-container": "#38bdf8",
+            "surface": "#faf8ff",
+            "on-secondary": "#ffffff",
+            "on-surface-variant": "#3e484f",
+            "inverse-primary": "#7bd0ff",
+            "surface-container-highest": "#dae2fd",
+            "inverse-on-surface": "#eef0ff",
+            "background": "#faf8ff",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-container": "#bda2ff",
+            "on-tertiary-container": "#520fbb",
+            "surface-container-high": "#e2e7ff",
+            "on-secondary-fixed-variant": "#004b73",
+            "on-tertiary-fixed": "#23005c",
+            "on-primary": "#ffffff",
+            "on-error-container": "#93000a",
+            "primary": "#00668a",
+            "on-secondary-container": "#00476e",
+            "on-error": "#ffffff",
+            "surface-bright": "#faf8ff",
+            "on-tertiary-fixed-variant": "#5516be",
+            "outline": "#6e7980",
+            "on-primary-container": "#004965",
+            "on-secondary-fixed": "#001d31",
+            "on-surface": "#131b2e",
+            "on-background": "#131b2e",
+            "surface-tint": "#00668a",
+            "secondary-fixed-dim": "#93ccff",
+            "secondary-container": "#5bb8fe",
+            "primary-fixed-dim": "#7bd0ff",
+            "secondary-fixed": "#cce5ff",
+            "tertiary-fixed-dim": "#d0bcff",
+            "tertiary-fixed": "#e9ddff",
+            "primary-fixed": "#c4e7ff",
+            "on-tertiary": "#ffffff",
+            "inverse-surface": "#283044",
+            "surface-variant": "#dae2fd"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "1.5rem",
+            "margin-lg": "4rem",
+            "gutter-lg": "2rem",
+            "margin": "1rem",
+            "margin-md": "2.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem"
+          },
+          "fontFamily": {
+            "code-sm": ["JetBrains Mono"],
+            "headline-sm": ["Hanken Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "headline-xl-mobile": ["Hanken Grotesk"],
+            "headline-lg": ["Hanken Grotesk"],
+            "body-lead": ["Hanken Grotesk"],
+            "headline-xl": ["Hanken Grotesk"],
+            "body-md": ["Hanken Grotesk"],
+            "display-hero-mobile": ["Hanken Grotesk"],
+            "headline-md": ["Hanken Grotesk"],
+            "label-sm": ["Hanken Grotesk"],
+            "display-hero": ["Hanken Grotesk"],
+            "label-md": ["Hanken Grotesk"]
+          },
+          "fontSize": {
+            "code-sm": ["0.8125rem", { "lineHeight": "1.4", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+            "headline-sm": ["1.25rem", { "lineHeight": "1.3", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-sm": ["0.8125rem", { "lineHeight": "1.45", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-xl-mobile": ["2rem", { "lineHeight": "1.15", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-lg": ["2rem", { "lineHeight": "1.2", "letterSpacing": "-0.025em", "fontWeight": "600" }],
+            "body-lead": ["1.125rem", { "lineHeight": "1.55", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "headline-xl": ["3rem", { "lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "600" }],
+            "body-md": ["0.9375rem", { "lineHeight": "1.5", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "display-hero-mobile": ["2.75rem", { "lineHeight": "1.08", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "headline-md": ["1.5rem", { "lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-sm": ["0.75rem", { "lineHeight": "1", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "display-hero": ["4.5rem", { "lineHeight": "1.02", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+            "label-md": ["0.875rem", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Subtle hairline border utility */
+    .hairline-border {
+      border: 1px solid rgba(189, 200, 209, 0.4);
+    }
+    .hairline-b {
+      border-bottom: 1px solid rgba(189, 200, 209, 0.4);
+    }
+    .hairline-t {
+      border-top: 1px solid rgba(189, 200, 209, 0.4);
+    }
+    .hairline-r {
+      border-right: 1px solid rgba(189, 200, 209, 0.4);
+    }
+    .hairline-l {
+      border-left: 1px solid rgba(189, 200, 209, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- 1. TopNavBar (Shared Component from JSON) -->
+<header class="docked full-width top-0 sticky z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30">
+<div class="flex justify-between items-center w-full px-6 lg:px-16 max-w-[1360px] mx-auto h-20">
+<!-- Brand Logo / Product Name -->
+<div class="flex items-center gap-3">
+<a class="flex items-center gap-3 group" href="#">
+<img alt="Episteme Brand Logo" class="h-9 w-9 rounded-lg object-contain shadow-sm group-hover:opacity-90 transition-opacity" src="https://lh3.googleusercontent.com/aida/AEtjO1VbAbjmv5SQDjqj5wlA79uZCaj01QlRctDcdf0lYodgc4G-CU1LaFsV-Ytq948iDSHEpFdJIf9iVcZhGk3HV9vP70h4RpSGfsdIiM7NFIFTxXdVUCIIUn-1t7OrZrgXitxKQRL4PaYyrhVeKz4qmDZmlwmufQXjI14hyhFNNIb53fkjNklN7Za8nKq3BBazmzOL00Dhbn_JJVf8IkQatQfmqC8jkDic6UliamaviYDbEmnfEMa8VRE0zyUP"/>
+<span class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface">Episteme</span>
+</a>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-primary font-semibold border-b-2 border-primary-container pb-1 text-label-md font-label-md transition-colors duration-150" href="#explore">Explore</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 text-label-md font-label-md" href="#categories">Categories</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 text-label-md font-label-md" href="#faculty">Instructors</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 text-label-md font-label-md" href="#events">Live Events</a>
+</nav>
+<!-- Search & Trailing Actions -->
+<div class="flex items-center gap-3.5">
+<!-- Quick Search pill (Search bar on right) -->
+<div class="relative hidden lg:block">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="bg-surface-container-lowest hairline-border rounded-full pl-9 pr-8 py-1.5 text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container w-44 transition-all focus:w-56" placeholder="Search catalog..." type="text"/>
+<span class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none">
+<kbd class="text-[10px] font-code-sm text-outline border border-outline-variant/50 rounded px-1">⌘K</kbd>
+</span>
+</div>
+<a class="text-label-md font-label-md font-medium text-on-surface hover:text-primary px-3 py-2 transition-colors duration-150" href="#login">Log In</a>
+<a class="bg-primary-container hover:bg-secondary text-on-surface hover:text-on-primary text-label-md font-label-md font-semibold px-4 py-2 rounded-lg transition-all duration-150 shadow-sm active:scale-[0.99]" href="#get-started">Get Started</a>
+</div>
+</div>
+</header>
+<main>
+<!-- 2. Hero Section -->
+<section class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-outline-variant/30">
+<!-- Subtle architectural background grid -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#00668a 1px, transparent 1px); background-size: 24px 24px;"></div>
+<div class="max-w-[1360px] mx-auto px-6 lg:px-16">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+<!-- Left Column: Editorial Headline & Actions -->
+<div class="lg:col-span-7 flex flex-col space-y-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/40 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-code-sm text-code-sm text-primary tracking-tight uppercase">Executive &amp; Engineering Mastery</span>
+</div>
+<h1 class="text-display-hero-mobile lg:text-display-hero font-display-hero text-on-surface tracking-tight leading-[1.02]">
+              Knowledge into capability.
+            </h1>
+<p class="text-body-lead font-body-lead text-on-surface-variant max-w-xl">
+              Courses, workshops, webinars, and mentoring designed to turn meaningful learning into practical skills.
+            </p>
+<!-- Prominent Search Bar with Pill Filter Container -->
+<div class="pt-2 max-w-xl">
+<div class="bg-surface-container-lowest hairline-border rounded-xl p-2 shadow-sm focus-within:border-primary-container transition-all">
+<div class="flex items-center gap-3 px-2">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="w-full bg-transparent border-none text-body-md font-body-md text-on-surface placeholder:text-outline focus:ring-0 p-1" placeholder="Search courses, webinars, workshops..." type="text"/>
+<button class="bg-inverse-surface hover:bg-primary text-surface font-label-md text-label-md px-4 py-2.5 rounded-lg font-medium transition-colors">
+                    Search
+                  </button>
+</div>
+</div>
+<!-- Quick category tags -->
+<div class="flex flex-wrap items-center gap-2 mt-3 pt-1">
+<span class="text-label-sm font-label-sm text-outline uppercase tracking-wider">Trending:</span>
+<a class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container hairline-border text-label-sm font-label-sm text-on-surface-variant transition-colors" href="#">Data Science</a>
+<a class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container hairline-border text-label-sm font-label-sm text-on-surface-variant transition-colors" href="#">AI Systems</a>
+<a class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container hairline-border text-label-sm font-label-sm text-on-surface-variant transition-colors" href="#">Executive Leadership</a>
+<a class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container hairline-border text-label-sm font-label-sm text-on-surface-variant transition-colors" href="#">System Architecture</a>
+</div>
+</div>
+<!-- CTAs -->
+<div class="flex items-center gap-5 pt-3">
+<a class="bg-primary-container hover:bg-secondary text-on-surface hover:text-on-primary font-label-md text-label-md font-bold px-6 py-3.5 rounded-lg transition-all duration-150 shadow-sm flex items-center gap-2" href="#explore">
+<span>Explore learning</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+<a class="text-on-surface hover:text-primary font-label-md text-label-md font-semibold transition-colors flex items-center gap-1" href="#catalog">
+                Browse all products →
+              </a>
+</div>
+<!-- Fast Stats Footnote -->
+<div class="pt-6 border-t border-outline-variant/30 flex items-center gap-8 text-on-surface-variant">
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-bold">98.4%</div>
+<div class="text-label-sm font-label-sm text-outline">Completion Rigor</div>
+</div>
+<div class="h-8 w-px bg-outline-variant/40"></div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-bold">1:1</div>
+<div class="text-label-sm font-label-sm text-outline">Practitioner Guidance</div>
+</div>
+<div class="h-8 w-px bg-outline-variant/40"></div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-bold">Top 1%</div>
+<div class="text-label-sm font-label-sm text-outline">Domain Specialists</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Abstract Editorial Knowledge Composition -->
+<div class="lg:col-span-5 relative">
+<div class="relative mx-auto w-full max-w-lg aspect-square bg-surface-container-lowest hairline-border rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col justify-between">
+<!-- Subtle blueprint grid overlay inside card -->
+<div class="absolute inset-0 bg-[linear-gradient(to_right,#eaedff_1px,transparent_1px),linear-gradient(to_bottom,#eaedff_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-70"></div>
+<!-- Header Bar of the Composition Module -->
+<div class="relative z-10 flex items-center justify-between border-b border-outline-variant/30 pb-4">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-code-sm text-code-sm font-semibold text-on-surface tracking-tight">KNOWLEDGE_VECTOR_GRAPH</span>
+</div>
+<span class="font-code-sm text-[11px] text-outline">STATUS: SYNCHRONIZED</span>
+</div>
+<!-- Central Node Network / Diagram -->
+<div class="relative z-10 my-auto py-8">
+<div class="relative h-56 flex items-center justify-center">
+<!-- Vector Connection Rings & Axis Lines -->
+<div class="absolute w-48 h-48 rounded-full border border-dashed border-outline-variant/70"></div>
+<div class="absolute w-32 h-32 rounded-full border border-primary-container/60 bg-primary-container/5"></div>
+<!-- Connection Lines (SVG) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 320 220">
+<path d="M60 40 L160 110 L260 50" stroke="#bdc8d1" stroke-dasharray="3 3" stroke-width="1.5"></path>
+<path d="M160 110 L80 180" stroke="#38bdf8" stroke-width="2"></path>
+<path d="M160 110 L240 170" stroke="#00668a" stroke-width="2"></path>
+</svg>
+<!-- Node 1: Core Synthesis -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-inverse-surface text-surface rounded-xl p-3 text-center shadow-md hairline-border border-primary-container/40 z-20">
+<div class="font-code-sm text-[11px] text-primary-container uppercase font-bold tracking-wider">Core Episteme</div>
+<div class="font-headline-sm text-headline-sm font-semibold text-white">Direct Capability</div>
+</div>
+<!-- Satellite Node A -->
+<div class="absolute top-2 left-4 bg-surface-container-lowest hairline-border p-2 rounded-lg shadow-sm">
+<span class="font-code-sm text-[11px] text-primary font-semibold">01. Theoretical Model</span>
+</div>
+<!-- Satellite Node B -->
+<div class="absolute top-4 right-4 bg-surface-container-lowest hairline-border p-2 rounded-lg shadow-sm">
+<span class="font-code-sm text-[11px] text-tertiary font-semibold">02. Execution Feedback</span>
+</div>
+<!-- Satellite Node C -->
+<div class="absolute bottom-4 left-6 bg-surface-container-lowest hairline-border p-2 rounded-lg shadow-sm">
+<span class="font-code-sm text-[11px] text-secondary font-semibold">03. Mentored Synthesis</span>
+</div>
+<!-- Satellite Node D -->
+<div class="absolute bottom-4 right-6 bg-surface-container-lowest hairline-border p-2 rounded-lg shadow-sm">
+<span class="font-code-sm text-[11px] text-on-surface font-semibold">04. Production Delivery</span>
+</div>
+</div>
+</div>
+<!-- Footer Terminal / Status Dock -->
+<div class="relative z-10 pt-3 border-t border-outline-variant/30 flex items-center justify-between text-code-sm font-code-sm text-outline">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Active Peer Cohort #04
+                </span>
+<span>48 Verified Capstones</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Featured Learning Section -->
+<section class="py-20 max-w-[1360px] mx-auto px-6 lg:px-16 border-b border-outline-variant/30" id="explore">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-10">
+<div>
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Curated Catalog</span>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-1">
+            Explore what's worth learning.
+          </h2>
+<p class="text-body-lead font-body-lead text-on-surface-variant mt-2 max-w-xl">
+            Curated learning experiences for people who want to build real capability.
+          </p>
+</div>
+<!-- Tab Filters -->
+<div class="flex flex-wrap items-center gap-2 mt-6 md:mt-0">
+<button class="bg-primary-container text-on-surface font-label-md text-label-md font-semibold px-3.5 py-1.5 rounded-lg hairline-border border-primary-container transition-all">All</button>
+<button class="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-3.5 py-1.5 rounded-lg hairline-border transition-all">Courses</button>
+<button class="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-3.5 py-1.5 rounded-lg hairline-border transition-all">Live Workshops</button>
+<button class="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-3.5 py-1.5 rounded-lg hairline-border transition-all">1-on-1 Mentoring</button>
+<button class="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-3.5 py-1.5 rounded-lg hairline-border transition-all">Webinars</button>
+</div>
+</div>
+<!-- 4 Editorial Product Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1: Python for Data Analysis -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl flex flex-col justify-between overflow-hidden group hover:border-primary-container hover:shadow-md transition-all duration-200">
+<div>
+<!-- Visual Header: 45% aspect container -->
+<div class="h-44 w-full bg-surface-container-low relative overflow-hidden flex items-center justify-center border-b border-outline-variant/30">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A clean architectural workspace photograph featuring code syntax on a matte monitor, minimalist notebook, and warm natural studio lighting. The setting embodies calm intellectual rigor with soft slate and sky blue reflections." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp8LIGH6_RP-xrEz8KF404oRcP4CBR0GOC0ZxY7QezCixOIUPPrDZmNVUI10T_qMqO9mmHE3XqkgkJ-irL5fd2Hrkm2tqtTMfxqc5dUbYQhQdFS6j3iNBKqGcHvZHxm0dKmVEcddNkTyR06BCFeHBae7vtIE-cEytiGNJlsacwk_OUIMvl096djni1n-1wCh-WpLLwX3ZPLgLok7eiTr_0EfuPUGxzgrmxlsKYE5DujfLOdebZwmjC5Q"/>
+<span class="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface text-label-sm font-label-sm px-2.5 py-1 rounded-md font-semibold hairline-border">
+                Course
+              </span>
+<span class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm text-outline text-code-sm font-code-sm px-2 py-0.5 rounded hairline-border">
+                Self-paced · Beginner
+              </span>
+</div>
+<!-- Card Body -->
+<div class="p-5">
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-outline mb-2">
+<span class="text-amber-500 font-bold">4.8 ★</span>
+<span>·</span>
+<span>128 learners</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Python for Data Analysis
+              </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 line-clamp-2">
+                Foundational computational workflows, pandas serialization, and automated analytical pipelines.
+              </p>
+</div>
+</div>
+<!-- Bottom Instructor & Pricing Dock -->
+<div class="p-5 pt-0">
+<div class="border-t border-outline-variant/30 pt-3.5 flex items-center justify-between">
+<div>
+<span class="block text-[11px] font-label-sm text-outline">INSTRUCTOR</span>
+<span class="text-body-sm font-body-sm font-medium text-on-surface">Dr. Ahmad Pratama</span>
+</div>
+<div class="text-right">
+<span class="font-code-sm text-code-sm font-bold text-on-surface">Rp299.000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Distributed Systems at Scale -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl flex flex-col justify-between overflow-hidden group hover:border-primary-container hover:shadow-md transition-all duration-200">
+<div>
+<!-- Visual Header -->
+<div class="h-44 w-full bg-surface-container-low relative overflow-hidden flex items-center justify-center border-b border-outline-variant/30">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Technical architectural diagram rendered with precision hairline vectors showing distributed server nodes, high-throughput pipelines, and network consensus trees. Slate blue and subtle cyan lighting accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9tnoeWXMD98ZIurZKhCvwQsCtk_Sxm0tY4Fc0kLLMZgE7R3MCwkv0rpNxZzY_ZVvtI9YYREqi4AYqImTdwhXDSZ4Czi_2Ba3E-DYQoskXzuLmK3llcxQYnnnvccEw2UJXB4t1hA5e3CB55EAK_6q_s5M338xgLETsV0lIki_zWEFWmEw3Jfm8uc7kFqQk9Xonof20nv4XXOtT6FBaBFts7lV44o7vOU9f8uoksHgnzfSQTTgQQhcVNQ"/>
+<span class="absolute top-3 left-3 bg-primary-container text-on-primary-container text-label-sm font-label-sm px-2.5 py-1 rounded-md font-semibold">
+                Workshop
+              </span>
+<span class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm text-outline text-code-sm font-code-sm px-2 py-0.5 rounded hairline-border">
+                Live · Advanced
+              </span>
+</div>
+<!-- Card Body -->
+<div class="p-5">
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-outline mb-2">
+<span class="text-amber-500 font-bold">4.9 ★</span>
+<span>·</span>
+<span>84 learners</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Distributed Systems at Scale
+              </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 line-clamp-2">
+                Consensus protocols, Raft implementations, partition tolerance, and zero-downtime migrations.
+              </p>
+</div>
+</div>
+<!-- Bottom Instructor & Pricing Dock -->
+<div class="p-5 pt-0">
+<div class="border-t border-outline-variant/30 pt-3.5 flex items-center justify-between">
+<div>
+<span class="block text-[11px] font-label-sm text-outline">INSTRUCTOR</span>
+<span class="text-body-sm font-body-sm font-medium text-on-surface">Elena Vance</span>
+</div>
+<div class="text-right">
+<span class="font-code-sm text-code-sm font-bold text-on-surface">Rp1.450.000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3: AI Product Strategy & Governance -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl flex flex-col justify-between overflow-hidden group hover:border-primary-container hover:shadow-md transition-all duration-200">
+<div>
+<!-- Visual Header -->
+<div class="h-44 w-full bg-surface-container-low relative overflow-hidden flex items-center justify-center border-b border-outline-variant/30">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Sophisticated executive whiteboard notes with strategic framework matrices, decision trees for machine learning deployment, and minimalist technical charts. Modern boardroom setting with bright natural illumination." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcnvdT-iJpTI7z3bM4w5WWf_IfjB4hdfHjMPcSm-WU3mL6sgmi7uPeJXYNde-I1LVPkSYLZ3-Ke_3CaK-WN_p4lBbDUC1CrzeC3vhISkznH30GSUuPDmvv7Y_RT_9NfsIcrg8mAx0QFw6J0z-Buxg41kh3UwWR3a69h8Qc4YDuedkR7krZIODlZybkZzfz7P_EPlL0_tqQKQCIVW99fXGVCCTw5JJxtV4dgzHGA6r05SF1ZGccBZQRZg"/>
+<span class="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface text-label-sm font-label-sm px-2.5 py-1 rounded-md font-semibold hairline-border">
+                Webinar
+              </span>
+<span class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm text-outline text-code-sm font-code-sm px-2 py-0.5 rounded hairline-border">
+                Live Event · Interm.
+              </span>
+</div>
+<!-- Card Body -->
+<div class="p-5">
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-outline mb-2">
+<span class="text-amber-500 font-bold">4.9 ★</span>
+<span>·</span>
+<span>310 learners</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                AI Product Strategy &amp; Governance
+              </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 line-clamp-2">
+                Risk matrices, model audit standards, compliance guardrails, and executive decision heuristics.
+              </p>
+</div>
+</div>
+<!-- Bottom Instructor & Pricing Dock -->
+<div class="p-5 pt-0">
+<div class="border-t border-outline-variant/30 pt-3.5 flex items-center justify-between">
+<div>
+<span class="block text-[11px] font-label-sm text-outline">INSTRUCTOR</span>
+<span class="text-body-sm font-body-sm font-medium text-on-surface">Marcus Chen</span>
+</div>
+<div class="text-right">
+<span class="font-code-sm text-code-sm font-bold text-on-surface">Rp185.000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4: Senior Staff Engineering Mentorship -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl flex flex-col justify-between overflow-hidden group hover:border-primary-container hover:shadow-md transition-all duration-200">
+<div>
+<!-- Visual Header -->
+<div class="h-44 w-full bg-surface-container-low relative overflow-hidden flex items-center justify-center border-b border-outline-variant/30">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A focused high-level technical one-on-one consultation over systemic architectural schematics on dual monitors. Modern clean engineering studio with bright daylight and quiet executive concentration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFCKrLFu4ePRY9jSfUd_SqToIp4xXbQKgrgQ2HytmZREJepkc6tb9KS1fE_ZShLN4osi2_Md3N7gmfYsOPVXobYhKhImQP99A02pRyTIZB2R95NsJPRaIH9AUYCN4qh6PUB69DtFG6EWM6qOLJT6MTOYhYCQAZwKNpqWMX_5supQxpvmYaWJBn-4f4IZm1yUQzIVAKt3xW3MXMwhi7wzYcthluw84Bvzxl-Y33pkIAOFXRSqR43Bl8jg"/>
+<span class="absolute top-3 left-3 bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-label-sm px-2.5 py-1 rounded-md font-semibold">
+                Mentoring
+              </span>
+<span class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm text-outline text-code-sm font-code-sm px-2 py-0.5 rounded hairline-border">
+                1-on-1 · Executive
+              </span>
+</div>
+<!-- Card Body -->
+<div class="p-5">
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-outline mb-2">
+<span class="text-amber-500 font-bold">5.0 ★</span>
+<span>·</span>
+<span>42 fellows</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Senior Staff Engineering Mentorship
+              </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 line-clamp-2">
+                Direct sponsorship, cross-org technical diplomacy, RFC authorship, and architectural governance.
+              </p>
+</div>
+</div>
+<!-- Bottom Instructor & Pricing Dock -->
+<div class="p-5 pt-0">
+<div class="border-t border-outline-variant/30 pt-3.5 flex items-center justify-between">
+<div>
+<span class="block text-[11px] font-label-sm text-outline">INSTRUCTOR</span>
+<span class="text-body-sm font-body-sm font-medium text-on-surface">Sarah Jenkins</span>
+</div>
+<div class="text-right">
+<span class="font-code-sm text-code-sm font-bold text-on-surface">Rp2.200.000</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Explore by Discipline (Categories) -->
+<section class="py-20 bg-surface-container-low/40 border-b border-outline-variant/30" id="categories">
+<div class="max-w-[1360px] mx-auto px-6 lg:px-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+<div>
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Taxonomy</span>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-1">
+              Explore by discipline
+            </h2>
+</div>
+<a class="text-primary font-semibold text-label-md font-label-md hover:underline mt-4 md:mt-0" href="#">
+            View all 24 sub-disciplines →
+          </a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Category 1 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Data Science</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Inferential statistics, deep pipelines &amp; predictive tooling.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">32 Modules · 8 Mentors</span>
+</a>
+<!-- Category 2 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Artificial Intelligence</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Transformer architectures, fine-tuning &amp; agentic models.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">44 Modules · 12 Mentors</span>
+</a>
+<!-- Category 3 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center text-on-surface mb-4">
+<span class="material-symbols-outlined">memory</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Systems Programming</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Rust concurrency, memory safety, kernel modules &amp; OS logic.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">28 Modules · 6 Mentors</span>
+</a>
+<!-- Category 4 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed flex items-center justify-center text-tertiary mb-4">
+<span class="material-symbols-outlined">layers</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Product Design</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Design systems, cognitive ergonomics &amp; information hierarchy.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">19 Modules · 5 Mentors</span>
+</a>
+<!-- Category 5 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface mb-4">
+<span class="material-symbols-outlined">corporate_fare</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Executive Business</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Capital allocation, team topology &amp; high-stakes negotiation.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">22 Modules · 7 Mentors</span>
+</a>
+<!-- Category 6 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">science</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Academic Research</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Peer review methodology, hypothesis synthesis &amp; writing.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">15 Modules · 4 Mentors</span>
+</a>
+<!-- Category 7 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined">security</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Cryptography &amp; Security</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Zero-knowledge proofs, threat modeling &amp; binary forensics.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">17 Modules · 5 Mentors</span>
+</a>
+<!-- Category 8 -->
+<a class="bg-surface-container-lowest hairline-border p-6 rounded-xl hover:border-primary-container hover:-translate-y-0.5 transition-all group" href="#">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed-dim/40 flex items-center justify-center text-on-primary-container mb-4">
+<span class="material-symbols-outlined">candlestick_chart</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Quantitative Finance</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Stochastic calculus, order book modeling &amp; risk arbitrage.</p>
+<span class="inline-block mt-4 text-code-sm font-code-sm text-outline">14 Modules · 4 Mentors</span>
+</a>
+</div>
+</div>
+</section>
+<!-- 5. Educational Formats (Distinctive Editorial Blocks) -->
+<section class="py-20 max-w-[1360px] mx-auto px-6 lg:px-16 border-b border-outline-variant/30">
+<div class="max-w-2xl mb-12">
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Pedagogical Modes</span>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-1">
+          Designed for deliberate cognitive transfer.
+        </h2>
+<p class="text-body-lead font-body-lead text-on-surface-variant mt-2">
+          Different problems demand different formats. Choose how you acquire leverage.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Format 01 -->
+<div class="bg-surface-container-lowest hairline-border rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+<span class="font-code-sm text-4xl text-outline-variant/50 font-bold block mb-8">01</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Self-Paced</h3>
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+              Learn whenever you want with rigorous asynchronous modules.
+            </p>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/30 flex items-center justify-between text-code-sm font-code-sm text-primary">
+<span>UNLIMITED ACCESS</span>
+<span class="material-symbols-outlined text-sm">north_east</span>
+</div>
+</div>
+<!-- Format 02 -->
+<div class="bg-surface-container-lowest hairline-border rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between border-t-2 border-t-primary-container">
+<span class="font-code-sm text-4xl text-primary-container font-bold block mb-8">02</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Live Workshop</h3>
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+              Learn together through immersive, practical sprint sessions.
+            </p>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/30 flex items-center justify-between text-code-sm font-code-sm text-primary">
+<span>COHORT-BOUND</span>
+<span class="material-symbols-outlined text-sm">north_east</span>
+</div>
+</div>
+<!-- Format 03 -->
+<div class="bg-surface-container-lowest hairline-border rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+<span class="font-code-sm text-4xl text-outline-variant/50 font-bold block mb-8">03</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">1-on-1 Mentoring</h3>
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+              Get direct career and technical guidance from seasoned practitioners.
+            </p>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/30 flex items-center justify-between text-code-sm font-code-sm text-primary">
+<span>HIGH ACCELERATION</span>
+<span class="material-symbols-outlined text-sm">north_east</span>
+</div>
+</div>
+<!-- Format 04 -->
+<div class="bg-surface-container-lowest hairline-border rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+<span class="font-code-sm text-4xl text-outline-variant/50 font-bold block mb-8">04</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Focused Webinar</h3>
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+              Explore cutting-edge developments with leading domain researchers.
+            </p>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/30 flex items-center justify-between text-code-sm font-code-sm text-primary">
+<span>SINGLE-SESSION SPRINT</span>
+<span class="material-symbols-outlined text-sm">north_east</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. Faculty & Instructors -->
+<section class="py-20 max-w-[1360px] mx-auto px-6 lg:px-16 border-b border-outline-variant/30" id="faculty">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+<div>
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Faculty</span>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-1">
+            Learn from people who practice what they teach.
+          </h2>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-md mt-4 md:mt-0">
+          Our mentors lead real teams, ship scaled infrastructure, and write foundational open source code.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Instructor 1 -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl p-6 group hover:border-primary-container transition-colors">
+<div class="flex items-center gap-4 mb-5">
+<div class="w-16 h-16 rounded-full overflow-hidden hairline-border bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up editorial portrait of an experienced male machine learning researcher in his late thirties with glasses, natural daylight, looking directly into the camera with intellectual warmth and confidence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9VhcdnCZUIKNyFOsEgjQnqZbTxomSWUJxTcQBNpfDN6uhRPqc6PfTsCdkHjxyVoM0Bf5y9cfZpN9mMw7XQtu6tgDSPUfzS5Ar5yudkWrUfoejTxNEv_f1Sf_Tw-JIlXO8K1XURNff2o2fuh71s0zdvPGF4oW3jp_s4GDLXpcZlKhsAk4bioZKzlmcubomL56lvD5AWnd-vQ9p5D6LxffFa6EQ4KWV7ulXoK_Q_3UVhNT8m1P2oI0ulQ"/>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Dr. Ahmad Pratama</h3>
+<p class="text-body-sm font-body-sm text-outline">Ex-Principal Data Scientist @ Tokopedia</p>
+</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4">
+            Specializes in high-volume time series modeling and high-throughput real-time feature stores.
+          </p>
+<div class="flex flex-wrap gap-1.5 mb-5">
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Python</span>
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Feature Store</span>
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">BigQuery</span>
+</div>
+<div class="pt-4 border-t border-outline-variant/30 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-outline">4 Active Courses</span>
+<a class="text-primary font-semibold hover:underline" href="#">View Faculty Profile →</a>
+</div>
+</div>
+<!-- Instructor 2 -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl p-6 group hover:border-primary-container transition-colors">
+<div class="flex items-center gap-4 mb-5">
+<div class="w-16 h-16 rounded-full overflow-hidden hairline-border bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up editorial portrait of a professional female systems engineer with sleek styling, soft background studio lighting, projecting rigorous executive presence and quiet authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLlSRsLgNtShDbSmc6yZmlRhMwRdF1zr8nymobSbvVoLee8vjUAe18rwOJS-QgAP96hZIUwRbdtgDwKJplZ2J4rQD3nH-K5nQFXcAp5ItrnVAocQiMYmwyuFG_s9AbiioMQJGKqDIsa9L7FpiwfI1Fm0dGjx4ga-Iel_dxw1ifkHZK093F0_KXmU-6bsAmOERuOf1ShNfUBQuy5uJH7xE_8sJ_3YsiMH62mzoR43j5PiAQIksth_2GHw"/>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Elena Vance</h3>
+<p class="text-body-sm font-body-sm text-outline">VP of Infrastructure @ CloudScale Labs</p>
+</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4">
+            Authored distributed consensus tooling processing over 40M events per second with zero data loss.
+          </p>
+<div class="flex flex-wrap gap-1.5 mb-5">
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Distributed Systems</span>
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Rust</span>
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Kubernetes</span>
+</div>
+<div class="pt-4 border-t border-outline-variant/30 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-outline">2 Live Workshops</span>
+<a class="text-primary font-semibold hover:underline" href="#">View Faculty Profile →</a>
+</div>
+</div>
+<!-- Instructor 3 -->
+<div class="bg-surface-container-lowest hairline-border rounded-xl p-6 group hover:border-primary-container transition-colors">
+<div class="flex items-center gap-4 mb-5">
+<div class="w-16 h-16 rounded-full overflow-hidden hairline-border bg-surface-container-high flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up editorial portrait of an executive tech leader in a crisp minimalist shirt with subtle studio lighting, showing focus, scholarly poise, and practical engineering credibility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAllW4FrcZuXTRgxXk9lVJw787hKBYSrHAEJtZCUDWVIPyPEk4RFUDv-jyWgAiU4aMeeBL1lWHgT9FOaupmrnQRRed4mCuDwj1bOuEl1pTBzZDi_SGWmkxdpZUr4VBwKm2hm0_ndOs44vPUaxAjwLePyV3RDn0b2rvNJp6cpWw8coFgAxeX_qYl3_H-V2LbIMWnz1_FRZ3dTW7kMG-X0JL3OJ4CDAaB0ncxdkDCr64ZVJiPBQxuoMk9HQ"/>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Sarah Jenkins</h3>
+<p class="text-body-sm font-body-sm text-outline">Distinguished Fellow &amp; Ex-Staff @ Stripe</p>
+</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-4">
+            Advises founders and engineering vice presidents on architecture governance, scale limits, and tech debt.
+          </p>
+<div class="flex flex-wrap gap-1.5 mb-5">
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Staff Plus</span>
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Architecture</span>
+<span class="px-2 py-0.5 bg-surface-container-low text-code-sm font-code-sm text-on-surface-variant rounded">Mentoring</span>
+</div>
+<div class="pt-4 border-t border-outline-variant/30 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-outline">1-on-1 Mentorship</span>
+<a class="text-primary font-semibold hover:underline" href="#">View Faculty Profile →</a>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. Outcome & Capability Framework -->
+<section class="py-24 bg-inverse-surface text-surface relative overflow-hidden">
+<!-- Atmospheric glow -->
+<div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/20 blur-3xl pointer-events-none"></div>
+<div class="max-w-[1360px] mx-auto px-6 lg:px-16 relative z-10">
+<div class="max-w-3xl mb-16">
+<span class="font-code-sm text-code-sm text-primary-container tracking-wider uppercase font-semibold">The Episteme Framework</span>
+<h2 class="text-headline-xl-mobile lg:text-headline-xl font-headline-xl text-surface tracking-tight mt-2">
+            Don't just collect knowledge.<br/>Build capability.
+          </h2>
+<p class="text-body-lead font-body-lead text-outline-variant mt-3 max-w-xl">
+            Passivity is the death of real learning. We structure every curriculum into four connected steps that demand output.
+          </p>
+</div>
+<!-- 4 Connected Stages -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+<!-- Vector connector line spanning across desktop columns -->
+<div class="hidden md:block absolute top-12 left-8 right-8 h-px bg-outline/40 -z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col">
+<div class="w-12 h-12 rounded-full bg-inverse-surface hairline-border border-outline/60 flex items-center justify-center text-primary-container font-code-sm font-bold text-headline-sm mb-6 shadow-sm">
+              01
+            </div>
+<h3 class="font-headline-md text-headline-md text-surface mb-2">Understand</h3>
+<p class="text-body-sm font-body-sm text-outline-variant">
+              Deconstruct first principles. Absorb foundational heuristics before touching abstractions.
+            </p>
+<span class="mt-4 font-code-sm text-[11px] text-primary-container">CORE MODELS</span>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col">
+<div class="w-12 h-12 rounded-full bg-inverse-surface hairline-border border-primary-container flex items-center justify-center text-primary-container font-code-sm font-bold text-headline-sm mb-6 shadow-[0_0_15px_rgba(56,189,248,0.3)]">
+              02
+            </div>
+<h3 class="font-headline-md text-headline-md text-surface mb-2">Practice</h3>
+<p class="text-body-sm font-body-sm text-outline-variant">
+              Deliberate repetition in sandboxed production environments that simulate reality.
+            </p>
+<span class="mt-4 font-code-sm text-[11px] text-primary-container">SYNTHETIC RUNTIMES</span>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col">
+<div class="w-12 h-12 rounded-full bg-inverse-surface hairline-border border-outline/60 flex items-center justify-center text-primary-container font-code-sm font-bold text-headline-sm mb-6 shadow-sm">
+              03
+            </div>
+<h3 class="font-headline-md text-headline-md text-surface mb-2">Create</h3>
+<p class="text-body-sm font-body-sm text-outline-variant">
+              Synthesize a standalone capstone artifact subjected to rigorous domain-expert review.
+            </p>
+<span class="mt-4 font-code-sm text-[11px] text-primary-container">VERIFIED ARTIFACT</span>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10 flex flex-col">
+<div class="w-12 h-12 rounded-full bg-inverse-surface hairline-border border-outline/60 flex items-center justify-center text-primary-container font-code-sm font-bold text-headline-sm mb-6 shadow-sm">
+              04
+            </div>
+<h3 class="font-headline-md text-headline-md text-surface mb-2">Grow</h3>
+<p class="text-body-sm font-body-sm text-outline-variant">
+              Translate your proven capability into higher organizational scope and market value.
+            </p>
+<span class="mt-4 font-code-sm text-[11px] text-primary-container">CAREER LEVERAGE</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 8. Upcoming Live Events (Editorial Row Schedule) -->
+<section class="py-20 max-w-[1360px] mx-auto px-6 lg:px-16 border-b border-outline-variant/30" id="events">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+<div>
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Calendar</span>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-1">
+            Upcoming live events
+          </h2>
+</div>
+<a class="text-primary font-semibold text-label-md font-label-md hover:underline mt-4 md:mt-0" href="#">
+          Subscribe to iCal schedule →
+        </a>
+</div>
+<div class="divide-y divide-outline-variant/30 border-y border-outline-variant/30">
+<!-- Row 1 -->
+<div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-surface-container-low/30 px-3 -mx-3 rounded-lg transition-colors">
+<div class="flex items-start md:items-center gap-6">
+<div class="flex flex-col text-center w-16 flex-shrink-0 bg-surface-container-lowest p-2 rounded hairline-border">
+<span class="font-code-sm text-headline-sm font-bold text-on-surface">19</span>
+<span class="text-[11px] font-label-sm text-outline tracking-wider uppercase">OCT</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-surface-container-high text-primary font-label-sm text-label-sm px-2 py-0.5 rounded">Live Sprint</span>
+<span class="text-code-sm font-code-sm text-outline">19:00 - 21:30 WIB</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                High-Concurrency Rust: Actors vs CSP Patterns
+              </h3>
+</div>
+</div>
+<div class="flex items-center gap-6 self-end md:self-center">
+<span class="text-code-sm font-code-sm text-outline hidden lg:inline">Host: Elena Vance</span>
+<a class="text-label-md font-label-md font-semibold text-primary hover:text-on-primary-container flex items-center gap-1 group-hover:translate-x-1 transition-transform" href="#">
+              View event →
+            </a>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-surface-container-low/30 px-3 -mx-3 rounded-lg transition-colors">
+<div class="flex items-start md:items-center gap-6">
+<div class="flex flex-col text-center w-16 flex-shrink-0 bg-surface-container-lowest p-2 rounded hairline-border">
+<span class="font-code-sm text-headline-sm font-bold text-on-surface">27</span>
+<span class="text-[11px] font-label-sm text-outline tracking-wider uppercase">OCT</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-surface-container-high text-primary font-label-sm text-label-sm px-2 py-0.5 rounded">Executive Webinar</span>
+<span class="text-code-sm font-code-sm text-outline">14:00 - 16:00 WIB</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Boardroom AI Risk Heuristics &amp; Audit Readiness
+              </h3>
+</div>
+</div>
+<div class="flex items-center gap-6 self-end md:self-center">
+<span class="text-code-sm font-code-sm text-outline hidden lg:inline">Host: Marcus Chen</span>
+<a class="text-label-md font-label-md font-semibold text-primary hover:text-on-primary-container flex items-center gap-1 group-hover:translate-x-1 transition-transform" href="#">
+              View event →
+            </a>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-surface-container-low/30 px-3 -mx-3 rounded-lg transition-colors">
+<div class="flex items-start md:items-center gap-6">
+<div class="flex flex-col text-center w-16 flex-shrink-0 bg-surface-container-lowest p-2 rounded hairline-border">
+<span class="font-code-sm text-headline-sm font-bold text-on-surface">04</span>
+<span class="text-[11px] font-label-sm text-outline tracking-wider uppercase">NOV</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-surface-container-high text-primary font-label-sm text-label-sm px-2 py-0.5 rounded">Faculty Roundtable</span>
+<span class="text-code-sm font-code-sm text-outline">20:00 - 22:00 WIB</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Staff Plus Career Transitions: Technical Influence at Scale
+              </h3>
+</div>
+</div>
+<div class="flex items-center gap-6 self-end md:self-center">
+<span class="text-code-sm font-code-sm text-outline hidden lg:inline">Host: Sarah Jenkins</span>
+<a class="text-label-md font-label-md font-semibold text-primary hover:text-on-primary-container flex items-center gap-1 group-hover:translate-x-1 transition-transform" href="#">
+              View event →
+            </a>
+</div>
+</div>
+</div>
+</section>
+<!-- 9. Testimonials -->
+<section class="py-20 max-w-[1360px] mx-auto px-6 lg:px-16 border-b border-outline-variant/30">
+<div class="max-w-2xl mb-12">
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Practitioner Outcomes</span>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-1">
+          Peer-reviewed career velocity.
+        </h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Quote 1 -->
+<div class="bg-surface-container-lowest hairline-border rounded-2xl p-8 flex flex-col justify-between">
+<blockquote class="text-body-lead font-body-lead text-on-surface leading-relaxed">
+            "Most platforms give you a video player and a multiple-choice quiz. Episteme forced me to defend my partition recovery strategy directly against an ex-principal engineer. It replaced two years of trial-and-error in three weeks."
+          </blockquote>
+<div class="flex items-center gap-4 mt-8 pt-6 border-t border-outline-variant/30">
+<div class="w-12 h-12 rounded-full overflow-hidden hairline-border bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a thoughtful young male software architect in a minimalist workspace setting, focused and composed with clear professional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDM2krPj14CRAVmnpp-25zjhnY3nGc3ddXG_FWGaC91LyI69YSJ898mfXCcokonf4yS8O6HHfD36zTeqB8JRTt5dijlWRFFMrNQ6F0qI_81PVdQN4Jik-GmgVsRGfAKN-6CqTwL0KCA0EakBz3JwCMa3hGuOMptrV25WxapNynjmu89bWmBqVGW_A9pabcyXZPClxZJ317Sf7qcAn-KSDFoVLxiGC5tR82XKuoNX-VdhWjW01aiADxBvA"/>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">Rian Wicaksono</div>
+<div class="text-body-sm font-body-sm text-outline">Lead Backend Architect @ FinTech Horizon</div>
+</div>
+</div>
+</div>
+<!-- Quote 2 -->
+<div class="bg-surface-container-lowest hairline-border rounded-2xl p-8 flex flex-col justify-between">
+<blockquote class="text-body-lead font-body-lead text-on-surface leading-relaxed">
+            "The 1-on-1 mentorship changed how I write internal engineering RFCs. Learning the exact communication mechanics of staff-level practitioners secured my promotion to Engineering Director within four months."
+          </blockquote>
+<div class="flex items-center gap-4 mt-8 pt-6 border-t border-outline-variant/30">
+<div class="w-12 h-12 rounded-full overflow-hidden hairline-border bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of an intelligent female tech director in an understated black blazer, modern bright office ambient lighting, exuding leadership poise and clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3LSHMRS6i-QF0Wg7aqAa7gDTJnkottqOtpiaHmdnTwc_cBq4CjVJPIQV4oZFBbotbzo2wTaA1G1RfYZUpP0JpdY0C4x2ZpAPDqwiCBOBEked0kY1Pkx8ylrO59LHbjE-t9N41OftxfPw8MhZAfpJVtVibS_40BhoMqAkHmBFvwjxq1HUVtj-KFbKUnyfN2LwVy10eaGg4y6lZlEkenOldHx_LO2csVny6pWZRUIlJHrNBiV_kFe_d2g"/>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">Amara Kholiq</div>
+<div class="text-body-sm font-body-sm text-outline">Director of Engineering @ ScaledMedia</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 10. Large Final CTA -->
+<section class="py-24 max-w-[1360px] mx-auto px-6 lg:px-16">
+<div class="relative bg-surface-container-lowest hairline-border rounded-3xl p-10 lg:p-20 overflow-hidden shadow-sm">
+<!-- Subtle geometric background contour -->
+<div class="absolute inset-0 pointer-events-none opacity-40">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 1200 400">
+<path d="M0,100 C300,180 600,20 1200,80 L1200,400 L0,400 Z" fill="#f2f3ff"></path>
+<path d="M0,200 C400,280 800,120 1200,220" stroke="#38bdf8" stroke-dasharray="6 6" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="relative z-10 max-w-2xl">
+<span class="font-code-sm text-code-sm text-primary uppercase tracking-wider font-semibold">Take the step</span>
+<h2 class="text-display-hero-mobile lg:text-headline-xl font-headline-xl text-on-surface tracking-tight mt-2 mb-4 leading-tight">
+            Your next capability starts here.
+          </h2>
+<p class="text-body-lead font-body-lead text-on-surface-variant mb-8 max-w-xl">
+            Find a learning experience designed for where you want to go next.
+          </p>
+<div class="flex flex-wrap items-center gap-4">
+<a class="bg-primary-container hover:bg-secondary text-on-surface hover:text-on-primary font-label-md text-label-md font-bold px-8 py-4 rounded-xl transition-all duration-150 shadow-md flex items-center gap-2" href="#catalog">
+<span>Explore Episteme</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+<a class="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-label-md text-label-md font-semibold px-6 py-4 rounded-xl hairline-border transition-colors" href="#consultation">
+              Request Cohort Syllabus
+            </a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- 11. Minimal Editorial Footer (Shared Component from JSON) -->
+<footer class="docked full-width bottom-0 bg-surface-container-low border-t border-outline-variant/30">
+<div class="w-full px-6 lg:px-16 py-16 max-w-[1360px] mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-outline-variant/30">
+<!-- Col 1: Brand & Positioning -->
+<div class="md:col-span-4 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<img alt="Episteme Brand Logo" class="h-8 w-8 rounded-md object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VbAbjmv5SQDjqj5wlA79uZCaj01QlRctDcdf0lYodgc4G-CU1LaFsV-Ytq948iDSHEpFdJIf9iVcZhGk3HV9vP70h4RpSGfsdIiM7NFIFTxXdVUCIIUn-1t7OrZrgXitxKQRL4PaYyrhVeKz4qmDZmlwmufQXjI14hyhFNNIb53fkjNklN7Za8nKq3BBazmzOL00Dhbn_JJVf8IkQatQfmqC8jkDic6UliamaviYDbEmnfEMa8VRE0zyUP"/>
+<span class="text-headline-md font-headline-md font-bold text-on-surface">Episteme</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant max-w-xs">
+              Knowledge into capability. Built for technical precision and executive authority.
+            </p>
+</div>
+<div class="mt-8">
+<span class="block text-[11px] font-label-sm text-outline uppercase tracking-wider mb-2">Platform Metrics</span>
+<div class="font-code-sm text-code-sm text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              ALL SYSTEMS OPERATIONAL (v2.4)
+            </div>
+</div>
+</div>
+<!-- Col 2: Navigation Links 1 -->
+<div class="md:col-span-2">
+<h4 class="font-label-md text-label-md font-semibold text-on-surface mb-4">Explore</h4>
+<ul class="space-y-2.5 text-body-sm font-body-sm">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#explore">Explore</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#curriculum">Curriculum</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#events">Live Events</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#fellowships">Fellowships</a></li>
+</ul>
+</div>
+<!-- Col 3: Navigation Links 2 -->
+<div class="md:col-span-2">
+<h4 class="font-label-md text-label-md font-semibold text-on-surface mb-4">Company</h4>
+<ul class="space-y-2.5 text-body-sm font-body-sm">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#about">About</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#faculty">Faculty</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#careers">Careers</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#press">Press</a></li>
+</ul>
+</div>
+<!-- Col 4: Navigation Links 3 -->
+<div class="md:col-span-2">
+<h4 class="font-label-md text-label-md font-semibold text-on-surface mb-4">Resources</h4>
+<ul class="space-y-2.5 text-body-sm font-body-sm">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#docs">Documentation</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#mentorship">Mentorship</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#privacy">Privacy Policy</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#terms">Terms of Service</a></li>
+</ul>
+</div>
+<!-- Col 5: Newsletter/Digest -->
+<div class="md:col-span-2">
+<h4 class="font-label-md text-label-md font-semibold text-on-surface mb-4">Weekly Synthesis</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-3">One deep-dive paper critique delivered every Sunday.</p>
+<div class="space-y-2">
+<input class="bg-surface-container-lowest hairline-border rounded-lg px-3 py-2 text-body-sm font-body-sm w-full text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container" placeholder="Your work email..." type="email"/>
+<button class="bg-inverse-surface hover:bg-primary text-surface font-label-md text-label-md w-full py-2 rounded-lg font-medium transition-colors">Subscribe</button>
+</div>
+</div>
+</div>
+<!-- Copyright & Bottom Status -->
+<div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+          © 2025 Episteme Inc. Rigorous technical mastery &amp; executive education. All rights reserved.
+        </p>
+<div class="flex items-center space-x-6 text-label-sm font-label-sm text-outline">
+<a class="hover:text-primary transition-colors" href="#">GitHub</a>
+<a class="hover:text-primary transition-colors" href="#">LinkedIn</a>
+<a class="hover:text-primary transition-colors" href="#">Twitter / X</a>
+<a class="hover:text-primary transition-colors" href="#">RSS</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
