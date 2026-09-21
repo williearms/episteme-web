@@ -99,17 +99,34 @@ the framework band (`shadow-[0_0_15px_rgba(56,189,248,0.3)]`) — kept as a one-
 | Section heading | `components/ui/section-heading.blade.php` | Eyebrow + H2 + optional lead paragraph, optional trailing slot (e.g. "View all →" link). |
 | Navbar | `components/layout/navbar.blade.php` | Sticky, blurred, logo + nav links + search + auth CTAs. |
 | Footer | `components/layout/footer.blade.php` | 5-column editorial footer with newsletter form. |
-| Product card | `components/product/card.blade.php` | Image, type badge, meta badge, rating, title, description, instructor + price dock. |
-| Instructor card | `components/instructor/card.blade.php` | Avatar, name, role, bio, skill tags, footer link. |
+| Product card | `components/product/card.blade.php` | **Phase 2:** now takes a single `:product` (Eloquent `Product`) prop instead of discrete strings. Renders thumbnail, type badge, level/duration meta badge, title (accessible stretched-link to the detail page), short description, instructor, price. Rating/learner-count were dropped — there's no reviews data model, so nothing was fabricated. |
+| Instructor card | `components/instructor/card.blade.php` | Avatar (falls back to initials when null), name, role, bio, optional skill tags, optional footer caption. The Phase 1 "View Faculty Profile →" link was removed — there's no instructor profile page, and a dead link would violate the "don't pretend it works" rule. |
 
-Components not yet built (documented for later phases per scope limits): category card, format
-card, event row, testimonial card, and the dark CTA band are implemented directly in the homepage
-view for Phase 1 since they appear once each and don't yet repeat elsewhere — they'll be extracted
-into components once a second page needs them.
+Components not yet built as standalone: category card, format card, event row, testimonial card,
+and the dark CTA band are still implemented directly in the homepage view since each only appears
+once — they'll be extracted into components once a second place needs them.
 
-## Pages (Phase 1 scope)
+### Shared page partials (Phase 2)
 
-- `/` — homepage, matching the full Stitch reference section-for-section.
+Not design-system components (they're page-composition partials, not reusable UI atoms), but
+worth documenting since two pages depend on them:
 
-No `/catalog` page exists in the Stitch reference, so none was created (per scope instructions:
-the Stitch design is the source of truth for visual structure — no invented pages).
+| Partial | Path | Used by |
+|---|---|---|
+| Filter bar | `resources/views/products/_filters.blade.php` | Catalog (`products.index`) and category (`categories.show`) — a single GET form (search, category*, type, level, price, sort). `showCategoryFilter` hides the category `<select>` on the category page since it's implicit in the URL. |
+| Result grid | `resources/views/products/_grid.blade.php` | Same two pages — result count, product grid, empty state, pagination. |
+
+Both pages call these identically so the search/filter/sort/pagination/empty-state behavior and
+markup never has to be maintained in two places.
+
+## Pages
+
+- `/` — homepage, matching the full Stitch reference section-for-section. Hero search, featured
+  products, categories, and instructors are now database-driven (Phase 2); pedagogical formats,
+  the framework band, testimonials, and the final CTA remain static editorial content, per Stitch.
+- `/products` — catalog: search, filter (category/type/level/price), sort, paginated grid. **(Phase 2)**
+- `/products/{product}` — product detail, route-bound by slug, scoped to published products only. **(Phase 2)**
+- `/categories/{category}` — category page, reuses the catalog's filter/grid partials scoped to one category. **(Phase 2)**
+
+No `/catalog` URL exists — the Stitch reference never named one, and `/products` is the
+conventional Laravel resource name for this content.

@@ -24,7 +24,69 @@
 - [x] Homepage prototype (`resources/views/home.blade.php`, all Stitch sections implemented)
 - [x] Visual QA — done, see below
 
-## Visual QA summary (2026-09-21)
+## Phase 2 — Public Website & Discovery
+
+- [x] Homepage connected to database
+- [x] Product model
+- [x] Category model
+- [x] Instructor model
+- [x] Product factories
+- [x] Product seeders
+- [x] Category seeders
+- [x] Instructor seeders
+- [x] Product listing
+- [x] Search
+- [x] Category filtering
+- [x] Product type filtering
+- [x] Level filtering
+- [x] Sorting
+- [x] Pagination
+- [x] Category page
+- [x] Product detail page
+- [x] Product type presentation
+- [x] Empty states
+- [x] SEO metadata
+- [x] Accessibility review
+- [x] Functional tests
+- [x] Visual QA
+- [x] Documentation updated
+
+See [`docs/PROJECT.md`](./PROJECT.md) ("Product domain (Phase 2)") for the model/route/filtering
+design, and ("Known limitations (Phase 2)") for what was deliberately left out.
+
+### Visual QA summary — Phase 2 (2026-09-21)
+
+Checked homepage, catalog (`/products`), a product detail page, and a category page at desktop
+(1440px) and mobile (375px), against `docs/design/stitch/index.html` and the Phase 1 design system.
+
+1. **Product card titles** initially looked like default blue hyperlinks in a screenshot — verified
+   via computed styles (`getComputedStyle`) that the color is actually `rgb(19, 27, 46)` (`--color-text`)
+   with no underline; it was a screenshot-compression artifact, not a real bug. No fix needed.
+2. **Filter bar and product grid** match the design system's card/border/radius/spacing tokens; no
+   new colors or components were introduced outside the existing token set.
+3. **Mobile**: filter fields stack to one column, product grid goes to one column, no horizontal
+   overflow, all inputs/selects reach comfortable touch size — verified via screenshot.
+4. **Empty states** (no search results, empty category) use the same bordered/dashed-box treatment
+   as the rest of the design system, with a real "Clear filters" action rather than a dead end.
+5. **Instructor avatars**: since seeded instructors have no photo, the fallback renders initials on
+   a `primary-soft` circle instead of a broken image — confirmed on the homepage faculty section.
+
+No layout, typography, or color discrepancies serious enough to require rework were found.
+
+### Accessibility notes — Phase 2
+
+- Product cards use a single real `<a>` around the title with a `absolute inset-0` overlay
+  (the standard "stretched link" pattern) so the whole card is clickable via one keyboard-reachable,
+  screen-reader-announced link — not a non-semantic `<div onclick>`.
+- All filter/search/sort inputs have associated `<label>` elements (visually hidden where the design
+  doesn't show a label, e.g. the hero and navbar search boxes).
+- Decorative icons (`material-symbols-outlined` spans used as bullets/markers) are `aria-hidden="true"`.
+- Focus states use `focus-visible:ring-2 focus-visible:ring-accent` consistently on interactive text
+  links inside cards.
+- The disabled detail-page CTA has `aria-disabled="true"` in addition to the native `disabled`
+  attribute, plus a visible caption explaining why it's inert.
+
+### Phase 1 visual QA summary (2026-09-21)
 
 Compared the rendered homepage against `docs/design/stitch/index.html` at desktop (1440px) and mobile
 (375px). Layout, typography, spacing, component sizing, colors, and responsive stacking all match the
@@ -65,12 +127,16 @@ App: http://localhost:8010
 
 ## Notes / deferred items
 
-- No `/catalog` page exists in the Stitch reference (single homepage export only), so none was
-  built in Phase 1. Revisit when a catalog design reference is provided.
+- Phase 2 added `/products` (catalog) and `/products/{slug}` (detail) using Laravel's conventional
+  resource naming, since the Stitch export never named a `/catalog` URL — the earlier Phase 1 note
+  about this is now resolved.
 - Laravel's default skeleton now ships `AGENTS.md`/`CLAUDE.md` with Laravel Boost bootstrap
   instructions (composer require + `boost:install`). Boost is agent tooling, unrelated to the
   Episteme product scope; since this task explicitly targets a Docker-only workflow (no host PHP),
-  Boost setup was left for a follow-up rather than blocking Phase 0/1 work.
-- Out of scope for Phase 0/1 (explicitly deferred to later phases): payment gateway, checkout,
-  orders, enrollment, course progress, webinar/mentoring booking, certificates, reviews backend,
-  complex user dashboard, marketplace transaction logic, production deployment.
+  Boost setup was left for a follow-up rather than blocking phase work.
+- Out of scope through Phase 2 (explicitly deferred to later phases): authentication, registration,
+  login, payment gateway, checkout, orders, enrollment, course progress, webinar/mentoring booking,
+  certificates, reviews backend, complex user dashboard, marketplace transaction logic, production
+  deployment. See `docs/PROJECT.md` → "Known limitations (Phase 2)" for Phase-2-specific gaps
+  (no commerce CTA, default-styled pagination, no related-products section, no fabricated
+  "popular" sort).
