@@ -21,8 +21,18 @@
                 <label for="nav-search" class="sr-only">Search catalog</label>
                 <x-ui.input id="nav-search" name="search" value="{{ request('search') }}" placeholder="Search catalog..." />
             </form>
-            <a href="#login" class="text-label-md font-medium text-text hover:text-primary px-3 py-2 transition-colors duration-150">Log In</a>
-            <x-ui.button href="#get-started" size="sm">Get Started</x-ui.button>
+            @auth
+                <a
+                    href="{{ route('account.dashboard') }}"
+                    class="flex items-center gap-2 text-label-md font-medium text-text hover:text-primary px-3 py-2 transition-colors duration-150"
+                >
+                    <span class="material-symbols-outlined text-[20px]" aria-hidden="true">account_circle</span>
+                    <span class="hidden sm:inline">{{ Str::before(auth()->user()->name, ' ') }}</span>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="text-label-md font-medium text-text hover:text-primary px-3 py-2 transition-colors duration-150">Log In</a>
+                <x-ui.button href="{{ route('register') }}" size="sm">Get Started</x-ui.button>
+            @endauth
         </div>
     </div>
 </header>
