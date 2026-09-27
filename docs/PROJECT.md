@@ -6,8 +6,9 @@ learn from courses, workshops, webinars, mentoring, and other educational produc
 Long-term user journey: **Discover → Explore → Understand → Purchase → Learn**.
 
 This repository currently covers **Phase 0 (foundation)**, **Phase 1 (design system + UI)**,
-**Phase 2 (public website + discovery)**, and **Phase 3 (product & catalog domain)**. See
-[`PROGRESS.md`](./PROGRESS.md) for status and scope boundaries.
+**Phase 2 (public website + discovery)**, **Phase 3 (product & catalog domain)**, and **Phase 4
+(authentication & user area)**. See [`PROGRESS.md`](./PROGRESS.md) for status, architectural
+decisions, and scope boundaries.
 
 ## Stack
 
@@ -144,7 +145,10 @@ both manual QA and `ProductDomainTest`. Run via `php artisan migrate:fresh --see
 
 ## Scope boundaries
 
-Phase 0–3 explicitly **exclude**: authentication, registration, login, payments/checkout, orders,
-enrollment, course progress, webinar/mentoring booking, certificates, review backend, user
-dashboards, and any marketplace transaction logic. These belong to later phases and are not
-implemented here, even where the schema or UI might hint at them.
+Phase 0–4 explicitly **exclude**: payments/checkout, orders, coupons, invoices, enrollment, course
+progress, webinar/mentoring booking, certificates, review backend, user roles beyond
+guest/authenticated (no Student/Instructor/Admin), account deletion, and any marketplace
+transaction logic. These belong to later phases and are not implemented here, even where the schema
+or UI might hint at them. Authentication and a basic personal account area (`/account`,
+`/account/profile`, `/account/settings`) were added in Phase 4 — see `docs/PROGRESS.md` → "Phase 4"
+for the full architecture and the reasoning behind not using a starter-kit package.

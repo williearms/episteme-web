@@ -189,6 +189,125 @@ were only caught because QA was done via a real browser render after restarting,
 `php artisan test` output alone (the test suite passed the whole time; it checks presence of text,
 not whether "Duration: PDF" reads as nonsense to a human).
 
+## Phase 4 — Authentication & User Area
+
+- [x] Inspected before changing anything — confirmed no auth scaffolding existed (no Breeze/
+  Fortify/Jetstream in `composer.json`, no `routes/auth.php`, `User` model was the untouched
+  Laravel default). The base tables (`users`, `password_reset_tokens`, `sessions`) and
+  `config/auth.php` were already present from the Laravel skeleton, just unused.
+- [x] Registration (`/register`)
+- [x] Login (`/login`) with generic failure messaging + per-credential rate limiting
+- [x] Logout (session invalidation + token regeneration)
+- [x] Password reset (`/forgot-password`, `/reset-password/{token}`) via `log` mail driver
+- [x] Email verification (notice, resend, signed verify link) — implemented, not enforced (see below)
+- [x] Authenticated route protection (`auth` middleware on `/account/*` and `logout`)
+- [x] Account dashboard (`/account`)
+- [x] Profile page (`/account/profile`)
+- [x] Account settings (`/account/settings`) with password change
+- [x] Authenticated navigation (navbar swaps Log In/Get Started for the user's name + account icon)
+- [x] Tests: 31 new (registration, login, logout, password reset, email verification, account
+  access, profile, settings) — all passing, 84 total across the whole suite
+- [x] Documentation updated
+
+### Architectural decision: hand-built auth instead of a starter kit
+
+**Decision:** implemented registration/login/logout/password-reset/email-verification directly
+against Laravel's own `Auth`, `Password`, and notification facades (`Illuminate\Auth\*`), rather
+than installing Laravel Breeze, Fortify, or Jetstream.
+
+**Why:** the brief's own guidance pulled in two directions — "do not build authentication manually
+from scratch... choose the smallest appropriate starter kit" vs. "do not introduce a separate
+authentication visual identity... use the existing design system... avoid unnecessary packages."
+Breeze's Blade stack would have scaffolded a parallel layout/component system (its own
+`layouts/guest.blade.php`, `layouts/navigation.blade.php`, `components/*`) that would need to be
+almost entirely deleted and rewritten to match Episteme's existing `x-layouts.app` /
+`x-ui.*` components anyway — every view Breeze generates was going to be replaced. Given that, the
+`composer require` + full package footprint bought nothing that hand-written controllers don't
+already get for free: `Auth::attempt()`, `Password::sendResetLink()`/`Password::reset()`,
+`$user->sendEmailVerificationNotification()`, Laravel's built-in `VerifyEmail`/`ResetPassword`
+notifications, the `auth`/`guest` middleware aliases, and the `current_password`/`Password::defaults()`
+validation rules are all still "Laravel's established authentication ecosystem" — none of this is
+custom cryptography or hand-rolled session handling (which the brief does prohibit). The seven auth
+controllers (`app/Http/Controllers/Auth/*`) are intentionally thin — each mirrors what Breeze's own
+controller for that flow does, just without the extra vendor package and without generating views
+that would be thrown away. This is documented here specifically because it's a deliberate deviation
+from the literal "install a starter kit" suggestion, made for design-consistency and package-minimalism
+reasons the brief itself prioritizes elsewhere.
+
+### Email verification: implemented, not enforced
+
+`User` implements `MustVerifyEmail`. Registration sends the verification email immediately
+(`$user->sendEmailVerificationNotification()`), the notice/resend/verify routes all work, and
+verification status is visible on the dashboard, profile, and settings pages. **`/account/*` routes
+do *not* require `verified` middleware** — per the brief's own instruction ("do not block basic
+account management unnecessarily if verification is not required for the current phase"), an
+unverified user can still use their account; they just see a persistent status indicator and a
+one-click resend action. This can be tightened later (e.g. gating a future "purchase" action behind
+`verified`) without restructuring anything now.
+
+### Security decisions worth calling out
+
+- **Account enumeration**: both the login failure message and the "forgot password" confirmation
+  message are deliberately generic and byte-for-byte identical whether or not the email is
+  registered. Laravel's password broker's default status strings *do* differ ("We can't find a user
+  with that email address" vs. "we have emailed your password reset link"), so
+  `PasswordResetLinkController` explicitly normalizes both cases to one message rather than passing
+  the broker's string straight through — this deviates from Breeze's own default behavior, chosen
+  because the brief explicitly flags enumeration risk in the login section and the same reasoning
+  applies to password reset.
+- **Rate limiting**: login uses a `RateLimiter`-backed lockout keyed on `email|ip` (5 attempts,
+  mirroring the well-known Breeze `LoginRequest` pattern) rather than a blanket route `throttle`,
+  since a per-credential lockout can't be used to hammer one specific account by rotating IPs as
+  easily as a per-IP-only limit. Password-reset requests and verification-resend use the simpler
+  `throttle:` middleware — lower-stakes endpoints, blanket throttling is sufficient there.
+- **Session security**: `session()->regenerate()` on login, `invalidate()` + `regenerateToken()` on
+  logout — standard Laravel session-fixation and CSRF-token protections, not custom.
+- Passwords are validated with `Illuminate\Validation\Rules\Password::defaults()` and hashed via
+  `Hash::make()` (bcrypt); nothing is ever logged or echoed back to a view.
+- Profile/password updates always act on `Auth::user()` — there's no route parameter identifying
+  which account to modify, so there's no IDOR surface to defend; `ProfileTest` still has an explicit
+  test proving one user's update never touches another user's row.
+- Changing the email address resets `email_verified_at` to `null` and re-sends a verification email
+  — a new, unconfirmed address is never silently treated as verified.
+
+### Routes added
+
+| Name | Method + URI |
+|---|---|
+| `register` | GET/POST `/register` |
+| `login` | GET/POST `/login` |
+| `logout` | POST `/logout` |
+| `password.request` / `password.email` | GET `/forgot-password` / POST `/forgot-password` |
+| `password.reset` / `password.store` | GET `/reset-password/{token}` / POST `/reset-password` |
+| `verification.notice` / `verification.verify` / `verification.send` | GET `/verify-email`, GET `/verify-email/{id}/{hash}` (signed), POST `/email/verification-notification` |
+| `account.dashboard` | GET `/account` |
+| `account.profile` / `account.profile.update` | GET `/account/profile` / PATCH `/account/profile` |
+| `account.settings` / `account.settings.password` | GET `/account/settings` / PUT `/account/settings/password` |
+
+`/`, `/products`, `/products/{slug}`, `/categories/{slug}` are unchanged and remain fully public —
+verified by re-running the full Phase 2/3 test suite (still 53 passing) alongside the 31 new tests.
+
+### New reusable components
+
+`components/ui/text-input.blade.php` (labeled input + inline error, replaces duplicating
+label+input+`@error` markup across 8 forms), `components/ui/alert.blade.php` (status/error banner),
+`components/auth/card.blade.php` (centered card wrapper shared by the 5 auth pages). No new visual
+language — all three compose existing design tokens (`border-border/40`, `rounded-card`,
+`text-error`/`text-success`, the existing type scale).
+
+### Known limitations — Phase 4
+
+- No custom-branded transactional emails — verification/reset emails use Laravel's default
+  notification templates (functional, `log`-driver-tested, just not visually Episteme-branded). Low
+  priority until a real mail provider is wired up in a later phase.
+- No account deletion — not requested by the brief, and deleting a user account has real
+  implications for the future Commerce/Learning data that will reference it, better deferred.
+- No "remember me" persistence testing beyond the checkbox wiring — Laravel's `remember_token`
+  mechanics are the framework's own, not re-tested here.
+- Registered users are not auto-assigned any role/permission — the brief explicitly scopes this
+  phase to Guest vs. Authenticated only; Student/Instructor/Admin roles are out of scope.
+- No Filament user management — untouched per the brief; the public account area is plain Blade.
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need
