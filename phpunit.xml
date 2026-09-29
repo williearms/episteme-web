@@ -27,6 +27,10 @@
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="PAYMENT_PROVIDER" value="midtrans"/>
+        <env name="MIDTRANS_SERVER_KEY" value="test-server-key"/>
+        <env name="MIDTRANS_CLIENT_KEY" value="test-client-key"/>
+        <env name="MIDTRANS_IS_PRODUCTION" value="false"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

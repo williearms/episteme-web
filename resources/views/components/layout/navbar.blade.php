@@ -23,6 +23,17 @@
             </form>
             @auth
                 <a
+                    href="{{ route('cart.index') }}"
+                    class="relative flex items-center text-text hover:text-primary px-2 py-2 transition-colors duration-150"
+                    aria-label="Cart"
+                >
+                    <span class="material-symbols-outlined text-[22px]" aria-hidden="true">shopping_cart</span>
+                    @php $cartItemCount = auth()->user()->cart?->items()->sum('quantity'); @endphp
+                    @if ($cartItemCount)
+                        <span class="absolute -top-1 -right-1 h-4 min-w-4 px-1 flex items-center justify-center rounded-full bg-accent text-[10px] font-bold text-text">{{ $cartItemCount }}</span>
+                    @endif
+                </a>
+                <a
                     href="{{ route('account.dashboard') }}"
                     class="flex items-center gap-2 text-label-md font-medium text-text hover:text-primary px-3 py-2 transition-colors duration-150"
                 >

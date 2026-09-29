@@ -57,16 +57,22 @@
                 <div class="flex flex-wrap items-center gap-4 pt-4">
                     <span class="font-mono text-headline-sm font-bold text-text">{{ $product->price_label }}</span>
 
-                    <button
-                        type="button"
-                        disabled
-                        aria-disabled="true"
-                        class="inline-flex items-center gap-2 bg-accent/50 text-text/60 font-bold px-6 py-3 rounded-md cursor-not-allowed"
-                    >
-                        {{ $product->cta_label }}
-                    </button>
+                    @auth
+                        <form method="POST" action="{{ route('cart.items.store') }}">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <x-ui.button type="submit">{{ $product->cta_label }}</x-ui.button>
+                        </form>
+                    @else
+                        <x-ui.button href="{{ route('login') }}">Log In to {{ $product->cta_label }}</x-ui.button>
+                    @endauth
                 </div>
-                <p class="text-label-sm text-outline -mt-2">Enrollment and checkout are not available yet — coming in a future phase.</p>
+                @if (session('status'))
+                    <p class="text-label-sm text-success -mt-2">{{ session('status') }}</p>
+                @endif
+                @if (session('error'))
+                    <p class="text-label-sm text-error -mt-2">{{ session('error') }}</p>
+                @endif
             </div>
 
             <div class="lg:col-span-5">

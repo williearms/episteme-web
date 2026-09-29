@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
+    /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
     public const LEVELS = [
@@ -235,5 +236,11 @@ class Product extends Model
     public function getDurationLabelAttribute(): ?string
     {
         return $this->type_details?->durationLabel();
+    }
+
+    /** The only purchasability rule in Phase 5: a product must be published. */
+    public function isPurchasable(): bool
+    {
+        return $this->status === ProductStatus::Published;
     }
 }

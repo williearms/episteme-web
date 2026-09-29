@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('order_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            // Nullable + nullOnDelete: order history must survive a product being
+            // deleted later. Every field that matters for the receipt is already
+            // snapshotted below, so losing the FK doesn't lose any information.
+            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('product_title');
+            $table->string('product_type');
+            $table->unsignedInteger('quantity')->default(1);
+            $table->unsignedInteger('unit_price');
+            $table->unsignedInteger('subtotal');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('order_items');
+    }
+};

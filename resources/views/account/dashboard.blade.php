@@ -41,9 +41,11 @@
                 <p class="text-body-sm text-text-muted mt-3">Member since {{ $user->created_at->format('d F Y') }}</p>
             </div>
 
-            <div class="bg-surface border border-dashed border-border/60 rounded-card p-6 opacity-70">
-                <h2 class="text-label-sm font-semibold text-outline uppercase tracking-wider mb-3">My Purchases &amp; Learning</h2>
-                <p class="text-body-sm text-text-muted">Coming in a future update — purchases and enrolled courses will appear here once available.</p>
+            <div class="bg-surface border border-border/40 rounded-card p-6">
+                <h2 class="text-label-sm font-semibold text-outline uppercase tracking-wider mb-3">My Orders</h2>
+                <p class="text-body-sm text-text-muted">View your order history and payment status.</p>
+                <a href="{{ route('account.orders.index') }}" class="inline-block mt-4 text-label-md font-semibold text-primary hover:underline">View orders &rarr;</a>
+                <p class="text-label-sm text-outline mt-3">Enrolled courses and learning progress are coming in a future update.</p>
             </div>
         </div>
     </section>

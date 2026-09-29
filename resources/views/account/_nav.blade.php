@@ -17,6 +17,12 @@
     >
         Settings
     </a>
+    <a
+        href="{{ route('account.orders.index') }}"
+        class="px-3.5 py-1.5 rounded-md text-label-md font-medium transition-colors {{ request()->routeIs('account.orders.index') ? 'bg-accent text-text' : 'text-text-muted hover:text-text hover:bg-surface-subtle' }}"
+    >
+        Orders
+    </a>
 
     <form method="POST" action="{{ route('logout') }}" class="sm:ml-auto">
         @csrf

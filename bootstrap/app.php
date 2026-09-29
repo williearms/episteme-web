@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // The payment provider posts webhooks without a Laravel session/CSRF
+        // token; PaymentWebhookController verifies authenticity itself via the
+        // provider's own request signature instead.
+        $middleware->validateCsrfTokens(except: [
+            'payments/webhook/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
