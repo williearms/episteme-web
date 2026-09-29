@@ -6,9 +6,9 @@ learn from courses, workshops, webinars, mentoring, and other educational produc
 Long-term user journey: **Discover → Explore → Understand → Purchase → Learn**.
 
 This repository currently covers **Phase 0 (foundation)**, **Phase 1 (design system + UI)**,
-**Phase 2 (public website + discovery)**, **Phase 3 (product & catalog domain)**, and **Phase 4
-(authentication & user area)**. See [`PROGRESS.md`](./PROGRESS.md) for status, architectural
-decisions, and scope boundaries.
+**Phase 2 (public website + discovery)**, **Phase 3 (product & catalog domain)**, **Phase 4
+(authentication & user area)**, and **Phase 5 (commerce, checkout & payment)**. See
+[`PROGRESS.md`](./PROGRESS.md) for status, architectural decisions, and scope boundaries.
 
 ## Stack
 
@@ -124,11 +124,45 @@ total: 18 published (spanning all 6 types, 3 levels, free/paid), 1 `draft`, and 
 extra archived example specifically exercises the "archived is hidden too, not just draft" rule in
 both manual QA and `ProductDomainTest`. Run via `php artisan migrate:fresh --seed`.
 
+## Commerce domain (Phase 5)
+
+A per-user `Cart` → `Checkout` → `Order` → `Payment` flow sits on top of the product domain above,
+without touching enrollment/course-access (Phase 6):
+
+```text
+users
+    ├── carts (1:1, lazy-created)
+    │       └── cart_items (product_id, quantity, unit_price — a display cache, never trusted at checkout)
+    └── orders (1:many)
+            ├── order_items — a full SNAPSHOT of product_title/product_type/unit_price at purchase time
+            └── payments (1:many) — every payment ATTEMPT for the order, not just the latest
+```
+
+| Model | Table | Key fields |
+|---|---|---|
+| `App\Models\Cart` | `carts` | `user_id` (unique — one cart per user) |
+| `App\Models\CartItem` | `cart_items` | `cart_id`, `product_id`, `quantity`, `unit_price`; unique `[cart_id, product_id]` |
+| `App\Models\Order` | `orders` | `user_id`, `order_number` (unique, e.g. `EP-20260928-000123`), `status` (`App\Enums\OrderStatus`), `subtotal`/`discount`/`total`, `currency` |
+| `App\Models\OrderItem` | `order_items` | `order_id`, `product_id` (nullable, `nullOnDelete`), `product_title`, `product_type`, `quantity`, `unit_price`, `subtotal` — all snapshotted |
+| `App\Models\Payment` | `payments` | `order_id`, `provider`, `provider_payment_id` (unique per attempt), `status` (`App\Enums\PaymentStatus`), `amount`, `paid_at`, `raw_response` |
+
+**Price snapshot principle:** a price is only ever trusted at the moment it's read from
+`products.price`, and only the server reads it — `cart_items.unit_price` is a display cache,
+recomputed from the live product at checkout, never read back as the order price. See
+`docs/PROGRESS.md` → "Phase 5" for the full write-up, including the payment provider abstraction
+(`App\Payments\PaymentGateway`, implemented by `MidtransGateway`), the order/payment status
+lifecycle, webhook signature/amount/idempotency handling, and local payment testing instructions.
+
+**Routes:** `/cart`, `/checkout`, `/orders/{order}`, `/account/orders` (all `auth`-protected),
+`/payments/webhook/midtrans` (CSRF-exempt, server-to-server only).
+
 ## Known limitations (Phase 2 & 3)
 
-- No commerce: the product detail CTA is rendered `disabled` with a caption explaining enrollment
-  isn't available yet — it deliberately does not link anywhere or submit anything.
-- No authentication: "Log In" / "Get Started" in the navbar remain the same inert Phase 1 placeholders.
+- No commerce as of Phase 2/3: the product detail CTA was rendered `disabled` with a caption
+  explaining enrollment wasn't available yet. **Resolved in Phase 5** — the CTA now adds the product
+  to the authenticated user's cart; see "Commerce domain (Phase 5)" above.
+- No authentication as of Phase 2/3: "Log In" / "Get Started" in the navbar were inert Phase 1
+  placeholders. **Resolved in Phase 4.**
 - Pagination uses Laravel's default Tailwind pagination view (`$products->links()`), which is
   functional and accessible but styled with Tailwind's default palette rather than Episteme's
   custom tokens — acceptable for now, worth reskinning later if it reads as visually inconsistent.
@@ -145,10 +179,13 @@ both manual QA and `ProductDomainTest`. Run via `php artisan migrate:fresh --see
 
 ## Scope boundaries
 
-Phase 0–4 explicitly **exclude**: payments/checkout, orders, coupons, invoices, enrollment, course
-progress, webinar/mentoring booking, certificates, review backend, user roles beyond
-guest/authenticated (no Student/Instructor/Admin), account deletion, and any marketplace
-transaction logic. These belong to later phases and are not implemented here, even where the schema
-or UI might hint at them. Authentication and a basic personal account area (`/account`,
-`/account/profile`, `/account/settings`) were added in Phase 4 — see `docs/PROGRESS.md` → "Phase 4"
-for the full architecture and the reasoning behind not using a starter-kit package.
+Phase 0–5 explicitly **exclude**: coupons/discount codes, refunds/chargebacks, a general
+inventory/capacity engine, enrollment, course progress, webinar/mentoring booking, certificates,
+protected digital-file delivery, review backend, user roles beyond guest/authenticated (no
+Student/Instructor/Admin), account deletion, and Filament CRUD for any of the new commerce
+resources. These belong to later phases and are not implemented here, even where the schema or UI
+might hint at them. Authentication and a basic personal account area (`/account`, `/account/profile`,
+`/account/settings`) were added in Phase 4 — see `docs/PROGRESS.md` → "Phase 4" for the full
+architecture and the reasoning behind not using a starter-kit package. Payments/checkout/orders were
+added in Phase 5 — see "Commerce domain (Phase 5)" above and `docs/PROGRESS.md` → "Phase 5" for the
+full architecture, security decisions, and known limitations.

@@ -308,6 +308,213 @@ language — all three compose existing design tokens (`border-border/40`, `roun
   phase to Guest vs. Authenticated only; Student/Instructor/Admin roles are out of scope.
 - No Filament user management — untouched per the brief; the public account area is plain Blade.
 
+## Phase 5 — Commerce, Checkout & Payment
+
+Adds the transaction layer on top of the Phase 3 product catalog and Phase 4 authentication: a
+per-user Cart, a Checkout flow that snapshots prices at purchase time, Orders with a payment
+lifecycle, and a Midtrans-backed Payment with webhook confirmation. Deliberately stops short of
+enrollment/course-access — see "Known limitations" below.
+
+### Schema
+
+```text
+users
+  └── carts (1:1)          — one cart per user, created lazily on first use
+        └── cart_items      — product_id, quantity, unit_price (a *display* price only — never
+                               trusted at checkout, see "Price snapshot strategy")
+  └── orders (1:many)
+        ├── order_items     — product_title, product_type, quantity, unit_price, subtotal — a full
+        │                     SNAPSHOT, independent of the product's current state
+        └── payments (1:many) — every payment ATTEMPT for the order, not just the latest
+```
+
+`order_items.product_id` is nullable with `nullOnDelete()` — deleting a product later must never
+break historical order/receipt data, and every field needed to display a past order is already
+copied onto the row. `cart_items` has a unique `[cart_id, product_id]` constraint so "add to cart"
+can never create a duplicate row for the same product (see below).
+
+### Price snapshot strategy
+
+This is the one rule the whole phase is built around: **a price is only ever trusted at the moment
+it's read from `products.price`, and only the server ever reads it.**
+
+- `CartController::store` looks up the product's current price server-side; the client can send a
+  `product_id` and an optional `quantity`, nothing else. `cart_items.unit_price` is a cached display
+  value only (so the cart page doesn't need to join `products` to show a subtotal) — it is **never**
+  read back at checkout.
+- `CheckoutController::store` re-reads `$item->product->price` for every line, right before creating
+  the `Order`, even though the same items were priced when added to the cart. If a product's price
+  changed between "add to cart" and "checkout", the order uses the price at checkout time, not the
+  stale cart price. Covered by `CheckoutTest::test_checkout_uses_the_products_current_price_not_the_stale_cart_price`.
+- Cart items whose product has gone `draft`/`archived` since being added are excluded from checkout
+  entirely (re-validated via `Product::isPurchasable()`, not read from a cached flag) and left in the
+  cart with an inline "no longer available" warning rather than silently dropped or silently charged.
+
+### Payment provider abstraction
+
+`App\Payments\PaymentGateway` is a small interface (`charge()`, `verifyWebhookSignature()`,
+`mapStatus()`); `App\Payments\MidtransGateway` is the only implementation. `AppServiceProvider`
+binds the interface based on `config('payment.provider')` (from `PAYMENT_PROVIDER` in `.env`) via a
+`match` with a `default => throw`, so `CheckoutController`, `OrderController`, and
+`PaymentWebhookController` never reference Midtrans directly — they only depend on the interface.
+
+**Why Midtrans, not Xendit:** neither was already configured (checked `composer.json` and `.env`
+first, per the brief). Midtrans was chosen because it's the more common default for an
+Indonesian-market product like Episteme (all pricing is already `IDR`-only) and its Snap API needs
+no SDK — it's plain HTTP via Laravel's own `Http` facade, so no new Composer dependency was added.
+**To add another provider later:** implement `PaymentGateway`, add one new `match` arm in
+`AppServiceProvider::register()`, add its own webhook route — no other file changes.
+
+**Per-attempt reference, not per-order:** Midtrans requires a unique `order_id` per transaction
+attempt, not per Episteme order — reusing one after a failed attempt is rejected by their API. Each
+`Payment` row gets its own reference (`{order_number}-P{payment_id}`, stored in
+`provider_payment_id`) generated *before* calling the gateway, and that's exactly the value Midtrans
+echoes back as `order_id` in its webhook — so `PaymentWebhookController` can look up the exact
+attempt a notification is about, unambiguously, even when an order has several attempts.
+
+### Order & payment status lifecycle
+
+- `OrderStatus`: `Pending` → `Paid` | `Cancelled` | `Expired`. A `Failed` *payment* does **not**
+  move the order out of `Pending` — the user can retry, which creates a new `Payment` row (never
+  reuses or overwrites the failed one) via `PaymentAttemptStarter`, keeping the full attempt history.
+- `PaymentStatus`: `Pending`, `Paid`, `Failed`, `Expired`, `Cancelled`. `Paid`/`Expired`/`Cancelled`
+  are terminal (`PaymentStatus::isTerminal()`); `Pending`/`Failed` are not, and can transition again.
+- A product priced at `0` (free) skips the gateway entirely — `CheckoutController` marks the order
+  `Paid` and creates a `provider => 'free'` payment record synchronously, so free webinars/resources
+  don't require setting up a real payment flow to "purchase."
+
+### Webhook: signature verification, amount verification, idempotency
+
+`POST /payments/webhook/midtrans` (CSRF-exempted in `bootstrap/app.php` — a provider webhook has no
+Laravel session to carry a CSRF token; authenticity is established by the check below instead):
+
+1. **Signature** — `MidtransGateway::verifyWebhookSignature()` recomputes
+   `sha512(order_id + status_code + gross_amount + server_key)` and compares with `hash_equals()`
+   against the payload's `signature_key`. Any mismatch is rejected with `403` before anything else
+   runs.
+2. **Amount** — the payload's `gross_amount` must equal the matched `Payment.amount` exactly, or the
+   webhook is rejected with `422`. Prevents a tampered/duplicate notification from confirming an
+   order for less than it actually costs.
+3. **Idempotency** — the matched `Payment` row is re-fetched with `lockForUpdate()` inside a
+   transaction; if its status is already terminal, the handler no-ops and returns `200` without
+   touching anything. A redelivered webhook (Midtrans retries on non-200/timeouts) can never apply a
+   status change twice or double-fire the order-paid transition.
+
+### Security decisions worth calling out
+
+- **Never trust the client for price, subtotal, total, or product identity** — every total in this
+  phase is computed server-side from `products.price` at the moment it matters (add-to-cart,
+  checkout). The client only ever sends a `product_id` and, optionally, a `quantity`.
+- **No exposed cart_item/payment IDs in routes** — cart routes are `/cart/items/{product}`, always
+  scoped through `$request->user()->cartOrCreate()`, mirroring the Phase 4 pattern of never accepting
+  a route parameter that identifies someone else's resource. There is no cart IDOR surface by
+  construction (`CartTest::test_a_user_cannot_modify_a_cart_item_that_belongs_to_another_users_cart`).
+  Orders, which *are* looked up by an opaque-but-guessable `order_number`, are protected instead by
+  an explicit `OrderPolicy::view()` checked in every controller action that touches one
+  (`OrderTest::test_a_user_cannot_view_another_users_order`,
+  `test_a_user_cannot_retry_payment_on_another_users_order`).
+- **Webhook authenticity** is the signature check above, not IP allowlisting or a shared secret in
+  the URL — matches Midtrans's own documented verification method.
+- **No sensitive payment data is ever logged or stored** — `payments.raw_response` stores the
+  provider's transaction-status payload (status, amounts, timestamps), never card details, API
+  credentials, or secrets. `MIDTRANS_SERVER_KEY` never appears in a response, log line, or view.
+- **Mass-assignment**: `CartController`/`CheckoutController` never pass request input directly into
+  `create()`/`update()` — every write is built from server-derived values (`$product->price`,
+  `$product->title`, …), with only `quantity` taken from the client, and even that is validated
+  (`integer`, `min:1`).
+
+### Routes added
+
+| Name | Method + URI |
+|---|---|
+| `cart.index` | GET `/cart` |
+| `cart.items.store` | POST `/cart/items` |
+| `cart.items.update` / `cart.items.destroy` | PATCH / DELETE `/cart/items/{product}` |
+| `checkout.show` / `checkout.store` | GET / POST `/checkout` |
+| `orders.show` | GET `/orders/{order}` |
+| `orders.retry-payment` | POST `/orders/{order}/retry-payment` |
+| `account.orders.index` | GET `/account/orders` |
+| `payments.webhook.midtrans` | POST `/payments/webhook/midtrans` (CSRF-exempt) |
+
+All `cart.*`/`checkout.*`/`orders.*`/`account.orders.*` routes require `auth`. The webhook route is
+intentionally outside that middleware group — it's a server-to-server callback, not a user action.
+
+### New reusable components
+
+`components/commerce/order-status-badge.blade.php` and `payment-status-badge.blade.php` (thin
+wrappers around the existing `<x-ui.badge>`, driven by the enums' own `badgeVariant()` — extended
+`<x-ui.badge>` with `success`/`error` variants using the `success`/`error` design tokens that already
+existed in `app.css` but had no consumer yet), `components/commerce/order-summary.blade.php` (used
+by both the checkout page and the order confirmation page — both just need a line-item list +
+subtotal/discount/total, so one component covers both rather than the two the brief suggested),
+`components/commerce/cart-item.blade.php` (the editable cart row — quantity form, remove button,
+availability warning).
+
+### Known limitations — Phase 5
+
+- No refunds, partial refunds, or chargebacks — out of scope per the brief; `OrderStatus`/
+  `PaymentStatus` have no state for it.
+- No coupons/discount codes — `orders.discount` exists in the schema (always `0` for now) so adding
+  a discount engine later doesn't need another migration, but nothing populates it yet.
+- No capacity/inventory limits on webinars, workshops, bootcamps, or mentoring sessions — a product
+  can be "purchased" any number of times with no seat cap. Documented here as a known future need,
+  not solved, per the brief.
+- No enrollment/course access/lesson progress/certificates/protected file delivery — a paid Order
+  exists, but nothing yet grants access to anything. That's the whole of Phase 6.
+- No Filament admin CRUD for Cart/Order/Payment — untouched per the brief.
+- Only one payment provider (Midtrans) is implemented, and only card/Snap-redirect flows are
+  exercised in practice — no production credentials exist in this environment, so the real gateway
+  round-trip is verified via `Http::fake()` in tests and manual QA confirms the graceful failure path
+  (order stays `Pending`, payment marked `Failed`, "Retry Payment" available) when no sandbox key is
+  configured, which is the expected local-dev state until a developer adds their own free sandbox key.
+- Retrying a payment can, in principle, be spammed by re-clicking "Retry Payment" — no rate limit was
+  added since it only ever creates rows scoped to the requesting user's own order and each attempt
+  still goes through the same server-side total; not a priority to harden further this phase.
+
+### Local payment testing
+
+1. Register a free account at https://dashboard.sandbox.midtrans.com and copy the **Sandbox** Server
+   Key / Client Key into `.env` (`MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`). No production
+   credentials are ever needed for local development — `MIDTRANS_IS_PRODUCTION=false` targets
+   `app.sandbox.midtrans.com` exclusively.
+2. Without any sandbox key configured, checkout still works end-to-end for the important paths:
+   the Order and initial `Payment` (status `pending`→`failed`) are created, and the order page shows
+   a clear "could not start the payment" message with a "Retry Payment" action — this is what the
+   automated tests exercise via `Http::fake()`, and it's also real, reproducible local behavior.
+3. To exercise an actual Snap redirect, add real sandbox keys, then use Midtrans's documented test
+   card numbers on the Snap page it redirects to.
+4. To receive real webhook callbacks locally (optional — not required for the checkout flow itself
+   to work), expose `http://localhost:8010/payments/webhook/midtrans` with a tunnel (e.g. `cloudflared
+   tunnel --url http://localhost:8010` or `ngrok http 8010`) and paste the resulting HTTPS URL into
+   the sandbox dashboard's Payment Notification URL setting. No tunnel configuration is committed to
+   the repo.
+5. To simulate a webhook without a tunnel, POST a JSON payload to
+   `/payments/webhook/midtrans` with a `signature_key` computed as
+   `sha512(order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY)` — see
+   `tests/Feature/Payments/PaymentWebhookTest::signedPayload()` for a working example.
+
+### Tests added
+
+`tests/Feature/Cart/CartTest.php` (12), `tests/Feature/Checkout/CheckoutTest.php` (9),
+`tests/Feature/Orders/OrderTest.php` (8), `tests/Feature/Payments/PaymentWebhookTest.php` (7) — 36
+new tests covering: cart add/update/remove and its IDOR-safety, draft/archived products being
+unpurchasable, duplicate-add incrementing quantity instead of duplicating rows, the stale-price vs.
+current-price checkout scenario, free-product checkout skipping payment, order ownership
+authorization, retry creating a new payment attempt, and webhook signature/amount/idempotency
+handling. All 120 tests (84 from Phases 2–4 + 36 new) pass — see the end of this document for the
+`git` checkpoint.
+
+### Bug caught during this phase's own QA
+
+`User::cartOrCreate()` originally read `$this->cart ?? $this->cart()->create()` — accessing
+`$this->cart` caches the (null) relation lookup, but `create()` on the relation doesn't update that
+cache. A second call to `cartOrCreate()` on the same in-memory `User` instance (e.g. the navbar and a
+controller both resolving the cart during one request, or reusing a user across two requests in a
+test via `actingAs`) would find the cached `null` again and try to create a *second* cart, violating
+`carts.user_id`'s unique constraint. Fixed by explicitly `setRelation('cart', $cart)` after creating.
+Caught by the very tests written for this phase, not by manual QA — a good example of why the
+"increment then create" duplicate-add-to-cart test and the free-product checkout test both exist.
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need
