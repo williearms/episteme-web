@@ -628,6 +628,89 @@ page, download authorization and path non-disclosure. 145 tests pass (120 + 25).
 - E2E/browser tests and in-depth QA are intentionally deferred to Phase 8; this phase got a
   smoke check (all learning routes + one screenshot) only.
 
+## Phase 7 — Admin
+
+Operational back office on the Filament panel that was installed in Phase 0 but never used. Lives at
+`/admin`. As with Phase 6, no detailed brief was supplied; scope comes from the roadmap
+("Admin — Operasional") and the "belongs to Phase 7" deferrals in earlier phases.
+
+### Access control — the important part
+
+Filament's default is that `canAccessPanel()` returns `true` **in the `local` environment** for any
+`User` that doesn't implement `FilamentUser` — i.e. until this phase, *any registered user* could
+open `/admin` locally. Now:
+
+- `users.is_admin` (boolean, default `false`). It is **not** in `User`'s `#[Fillable]`, so it can't be
+  set through registration, profile update, or any mass-assignment. Tests post a crafted `is_admin=1`
+  to both and assert it is ignored.
+- `User implements FilamentUser`; `canAccessPanel()` returns `(bool) $this->is_admin`. The `(bool)`
+  matters: a user created earlier in the same request has no `is_admin` attribute loaded (`null`),
+  and the strict `bool` return type turned that into a 500 instead of a 403 (caught by the tests).
+- Non-admins get `403` on every `/admin` page; guests are redirected to `/admin/login`.
+- First admin: `php artisan episteme:make-admin {email}` (promotes an *existing* user — there is no
+  seeded admin with a known password). After that, admins can promote/demote others in the panel.
+  An admin can't demote themselves, so at least one admin always remains.
+
+### What the panel manages
+
+| Group | Resource | Notes |
+|---|---|---|
+| Catalog | Categories, Instructors | Simple (modal) CRUD. |
+| Catalog | Products | Full form incl. the subtype's fields (shown per `product_type`), marketing copy, and — for live types — the enrolled-only join link/instructions; digital products get a private-disk file upload. |
+| Sales | Orders | **Read-only** (list + view with items and payment attempts). |
+| Learning | Course modules | Modules per course, with lessons managed inside each module. |
+| Learning | Enrollments | Grant access manually (`order_id` null = "Manual grant"), revoke. |
+| Users | Users | List only, plus make/remove admin. |
+
+Dashboard: revenue (paid orders only), paid/pending order counts, enrollments, users.
+
+### Decisions worth calling out
+
+- **Orders are read-only.** An order's status only changes via the verified payment webhook. An editable
+  status would let staff create "paid" orders with no payment and no enrollment. Access for
+  exceptional cases goes through *Enrollments → Grant access* instead, which is explicit and visible.
+- **Destructive deletes are blocked where the schema cascades.** `products.category_id` cascades, so
+  a category with products can't be deleted; `enrollments.product_id` cascades, so a product that has
+  been bought (enrollment or order item) can't be deleted — archive it. Implemented in each
+  resource's `canDelete()`, which Filament applies to both table and page actions.
+- **`product_type` is locked after creation.** Changing it would orphan the old subtype row and
+  leave the product without its new one.
+- **`OrderPolicy` is bypassed in the panel on purpose.** It encodes the storefront rule "only the
+  owner sees an order", and Filament would otherwise apply it and show admins nothing.
+  `OrderResource` checks `is_admin` directly instead. The storefront rule is unchanged — a test
+  asserts an admin still gets `403` on `/orders/{number}` for someone else's order.
+- **`is_admin` changes via explicit confirmed actions** (`forceFill`), never a form field, so it
+  can't ride along on an ordinary edit.
+- **Payment `raw_response` is not displayed** in the panel.
+- Products and orders are addressed by their route key in admin URLs (`/admin/products/{slug}/edit`,
+  `/admin/orders/{order_number}`), not by id. Drafts/archived products are editable in the panel —
+  Filament doesn't go through the storefront's published-only `resolveRouteBinding()`.
+- Empty "outcomes"/"requirements" lists start with zero rows. The default single required row made
+  it impossible to save a product without filling them (caught by the tests).
+
+### Tests added
+
+`tests/Feature/Admin/AdminAccessTest.php` (9) and `AdminResourcesTest.php` (17): guest/non-admin/admin
+access to every page, no self-promotion through registration or profile update, the `make-admin`
+command, admin vs. storefront order visibility, product creation per type (right subtype row, no
+stray rows, member access, `published_at`), slug uniqueness, locked type, delete guards,
+read-only orders, manual grant/duplicate/revoke, promote/demote and the self-demotion guard,
+lessons via the relation manager, and the dashboard totals. 171 tests pass (145 + 26).
+
+### Known limitations — Phase 7
+
+- Single admin role — no finer permissions (e.g. support staff who can see orders but not edit
+  products). Add Filament Shield or policies if that's needed.
+- No refund/cancel/manual-payment actions and no coupon management (not built in Phase 5).
+- Product thumbnails and instructor avatars are URL fields, not uploads, because the storefront
+  renders them as raw URLs. Only the digital-product file is an upload (private disk).
+- No audit log of admin actions.
+- No bulk actions, CSV export, or reporting beyond the five dashboard figures.
+- Lessons are plain text; no rich editor.
+- The panel uses Filament's own styling (Sky primary colour), not the storefront design system.
+- Browser/E2E testing is deferred to Phase 8; this phase got Livewire feature tests plus a smoke
+  check of every panel page and the product edit/create forms.
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need

@@ -7,8 +7,8 @@ Long-term user journey: **Discover → Explore → Understand → Purchase → L
 
 This repository currently covers **Phase 0 (foundation)**, **Phase 1 (design system + UI)**,
 **Phase 2 (public website + discovery)**, **Phase 3 (product & catalog domain)**, **Phase 4
-(authentication & user area)**, **Phase 5 (commerce, checkout & payment)**, and **Phase 6
-(learning)**. See
+(authentication & user area)**, **Phase 5 (commerce, checkout & payment)**, **Phase 6
+(learning)**, and **Phase 7 (admin)**. See
 [`PROGRESS.md`](./PROGRESS.md) for status, architectural decisions, and scope boundaries.
 
 ## Stack
@@ -173,6 +173,15 @@ enrollment id in a URL — so a non-owner gets `404`. Archived products stay acc
 buyers. Routes: `/account/learning`, `/learning/{slug}`, `/learning/{slug}/lessons/{lesson}` (+
 `/complete`), `/learning/{slug}/download`. See `docs/PROGRESS.md` → "Phase 6" for the full write-up.
 
+## Admin (Phase 7)
+
+A Filament panel at `/admin`, restricted to users with `users.is_admin = true` (never
+mass-assignable). Create the first admin with `php artisan episteme:make-admin {email}`. It manages
+categories, instructors, products (with per-type details and member-access info), course modules and
+lessons, enrollments (grant/revoke), and lists users and orders. **Orders are read-only** — status
+only changes through the verified payment webhook. Categories/products already in use can't be
+deleted (their deletes cascade). See `docs/PROGRESS.md` → "Phase 7".
+
 ## Known limitations (Phase 2 & 3)
 
 - No commerce as of Phase 2/3: the product detail CTA was rendered `disabled` with a caption
@@ -196,10 +205,10 @@ buyers. Routes: `/account/learning`, `/learning/{slug}`, `/learning/{slug}/lesso
 
 ## Scope boundaries
 
-Phase 0–6 explicitly **exclude**: coupons/discount codes, refunds/chargebacks, a general
-inventory/capacity engine, mentoring booking/scheduling, quizzes, certificates, review backend, user
-roles beyond guest/authenticated (no Student/Instructor/Admin), account deletion, and Filament CRUD
-for the commerce and learning resources (Phase 7). These belong to later phases and are not implemented here, even where the schema or UI
+Phase 0–7 explicitly **exclude**: coupons/discount codes, refunds/chargebacks, a general
+inventory/capacity engine, mentoring booking/scheduling, quizzes, certificates, review backend,
+granular roles/permissions (there is just guest, authenticated user, and admin), account deletion,
+an admin audit log, and E2E tests (Phase 8). These belong to later phases and are not implemented here, even where the schema or UI
 might hint at them. Authentication and a basic personal account area (`/account`, `/account/profile`,
 `/account/settings`) were added in Phase 4 — see `docs/PROGRESS.md` → "Phase 4" for the full
 architecture and the reasoning behind not using a starter-kit package. Payments/checkout/orders were
