@@ -78,24 +78,10 @@ No local PHP, Node, or MySQL installation is needed after that — everything ru
    cp .env.example .env
    ```
 
-   Then edit `.env`. The example file ships with SQLite defaults, but this project runs on MySQL in Docker, so set:
+   The example file is already set up for the Docker environment (MySQL service, site on port 8010, throwaway local database credentials), so no edits are required. Optional tweaks:
 
-   ```dotenv
-   APP_URL=http://localhost:8010
-   APP_PORT=8010
-
-   DB_CONNECTION=mysql
-   DB_HOST=mysql
-   DB_PORT=3306
-   DB_DATABASE=laravel
-   DB_USERNAME=sail
-   DB_PASSWORD=password
-
-   WWWUSER=1000
-   WWWGROUP=1000
-   ```
-
-   If port 3306 is already used on your machine, also set `FORWARD_DB_PORT=3307` (this only changes the port published on your host; the app still talks to `mysql:3306` inside Docker).
+   - If port 3306 is already used on your machine, uncomment `FORWARD_DB_PORT` and set it to `3307`. This only changes the port published on your host; the app still talks to `mysql:3306` inside Docker.
+   - On Linux/WSL, if `id -u` is not `1000`, set `WWWUSER` and `WWWGROUP` to your user/group id.
 
 3. Install PHP dependencies (first time only):
 
