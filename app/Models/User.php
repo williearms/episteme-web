@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -14,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -29,7 +31,20 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // Deliberately NOT in #[Fillable]: only forceFill()/the make-admin
+            // command/the admin panel's explicit action may ever change it.
+            'is_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Without this, Filament lets *any* signed-in user into the panel whenever
+     * APP_ENV=local — so access is tied to the admin flag explicitly.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // (bool): a user created earlier in the same request has no is_admin attribute loaded yet.
+        return (bool) $this->is_admin;
     }
 
     public function cart(): HasOne
