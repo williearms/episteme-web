@@ -104,6 +104,7 @@ the framework band (`shadow-[0_0_15px_rgba(56,189,248,0.3)]`) — kept as a one-
 | Order status badge | `components/commerce/order-status-badge.blade.php` | Thin wrapper over `<x-ui.badge>`, colored by `OrderStatus::badgeVariant()`. **(Phase 5)** |
 | Payment status badge | `components/commerce/payment-status-badge.blade.php` | Same pattern, driven by `PaymentStatus::badgeVariant()`. **(Phase 5)** |
 | Order summary | `components/commerce/order-summary.blade.php` | Line items + subtotal/discount/total. Shared by the checkout page (cart items) and the order confirmation page (order items) — both need the same shape. **(Phase 5)** |
+| Progress bar | `components/learning/progress-bar.blade.php` | `percent` prop, accent fill on a `surface-muted` track, with `role="progressbar"`. **(Phase 6)** |
 | Cart item row | `components/commerce/cart-item.blade.php` | Editable cart row: thumbnail, title, quantity form, remove button, an inline warning if the product is no longer purchasable. **(Phase 5)** |
 
 Components not yet built as standalone: category card, format card, event row, testimonial card,
@@ -135,6 +136,9 @@ markup never has to be maintained in two places.
 - `/checkout` — read-only order review (buyer details, line items, order summary) + "Place Order" action. **(Phase 5, auth-only)**
 - `/orders/{order}` — order confirmation/detail: status badges, payment info, "Retry Payment" when applicable. **(Phase 5, auth-only, owner-only via `OrderPolicy`)**
 - `/account/orders` — order history list, empty state. **(Phase 5, auth-only)**
+- `/account/learning` — enrolled products as cards with progress, empty state. **(Phase 6, auth-only)**
+- `/learning/{slug}` — per-type learning page: course outline + progress, live-access card, or download card. **(Phase 6, enrolled-only)**
+- `/learning/{slug}/lessons/{lesson}` — lesson reader with module sidebar, complete/undo, previous/next. **(Phase 6, enrolled-only)**
 
 No `/catalog` URL exists — the Stitch reference never named one, and `/products` is the
 conventional Laravel resource name for this content.

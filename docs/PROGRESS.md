@@ -515,6 +515,119 @@ test via `actingAs`) would find the cached `null` again and try to create a *sec
 Caught by the very tests written for this phase, not by manual QA — a good example of why the
 "increment then create" duplicate-add-to-cart test and the free-product checkout test both exist.
 
+## Phase 6 — Learning
+
+Turns a paid order into something the buyer can actually use: enrollment, a course player with
+progress, protected access details for live products, and protected downloads. No detailed brief
+was supplied for this phase, so the scope below was derived from the roadmap (`docs/PHASE.md`:
+"Bisa belajar") and the deferrals recorded in Phases 3–5.
+
+### Schema
+
+```text
+users ── enrollments (unique [user_id, product_id]) ── products
+              │  order_id → orders (nullOnDelete)
+              └── lesson_progress (unique [enrollment_id, lesson_id]) ── lessons
+courses ── course_modules ── lessons
+products ── product_accesses (1:1: join_url, instructions)
+digital_products.file_path  (private disk)
+```
+
+`course_modules`/`lessons` hang off the existing `courses` subtype row, so Phase 3's public
+`total_modules`/`total_lessons` stay as the marketing counts. `product_accesses` is a **separate
+table** from the subtype tables on purpose: Phase 3 made those publicly readable (and said never to
+put meeting links in them); this one is only ever rendered for enrolled users.
+
+### How enrollment is granted
+
+`Order::grantEnrollments()` runs `firstOrCreate` per order item. It is called from exactly two
+places: the free-order branch of `CheckoutController::store` and, inside the existing transaction,
+`PaymentWebhookController` when the mapped status is `Paid`. The unique `[user_id, product_id]` key
+makes it idempotent, so a redelivered webhook or a repeat purchase cannot create a second row.
+Nothing else grants access — placing a pending order, or a failed/expired payment, enrolls nobody.
+
+Already-owned products are blocked at both ends: `CartController::store` refuses them, and
+`CheckoutController::purchasableItems()` filters them out if one slipped into the cart earlier.
+
+### Access control
+
+Every learning route resolves the enrollment **through the signed-in user's own enrollments**, by
+product slug (`$request->user()->enrollments()->whereHas('product', …)->firstOrFail()`). There is no
+enrollment id in any URL, so nothing to guess; a non-owner gets `404`, not `403`, so the response
+doesn't confirm the product exists. This is the same pattern as Phase 5's cart, and is why no new
+Policy was needed. Lesson routes additionally assert the lesson belongs to *this* enrollment's
+course, so a lesson id from another course can't be read or marked complete through it.
+
+Because access is via the enrollment and not `Product::resolveRouteBinding()` (published-only), a
+product that is later archived stays accessible to the people who already bought it.
+
+### Progress
+
+`Enrollment::progressPercent()` = completed lessons ÷ the course's lessons. `markLesson()` is
+idempotent (unique key) and keeps `completed_at` in sync both ways — finishing the last lesson sets
+it, undoing a lesson clears it.
+
+### Protected downloads
+
+`digital_products.file_path` points at the **private** `local` disk. `LearningController::download`
+streams it via `Storage::download()` after the enrollment check; the path never appears in any URL
+or view (covered by a test). Missing file → `404`.
+
+### Routes added
+
+| Name | Method + URI |
+|---|---|
+| `account.learning.index` | GET `/account/learning` |
+| `learning.show` | GET `/learning/{slug}` |
+| `learning.lessons.show` | GET `/learning/{slug}/lessons/{lesson}` |
+| `learning.lessons.complete` / `.uncomplete` | POST / DELETE `/learning/{slug}/lessons/{lesson}/complete` |
+| `learning.download` | GET `/learning/{slug}/download` |
+
+All require `auth`.
+
+### UI added
+
+`account/learning`, `learning/show` (course outline + progress / live-access card / download card,
+chosen by product type), `learning/lesson`, and `components/learning/progress-bar`. Account nav gets
+a "Learning" tab; the dashboard's placeholder card is replaced; the paid order page links to My
+Learning; the product page swaps "Add to cart" for "Go to My Learning" when owned; the cart flags
+owned items.
+
+### Seed data
+
+`LearningContentSeeder` (called from `DatabaseSeeder`) generates modules/lessons per course from its
+`total_modules`/`total_lessons`, a `product_accesses` row per webinar/workshop/bootcamp/mentoring
+(join links are `meet.example.com` placeholders), and a small placeholder text file per digital
+product. All of it is demo filler, not real content.
+
+**Dev gotcha:** run seeders as the web user — `docker compose exec -u sail laravel.test php artisan
+db:seed …`. Run as root (the default), the seeder creates `storage/app/private/digital-products`
+owned by root and the web server then can't read the file (download 404s). Fix with
+`docker compose exec laravel.test chown -R sail:sail storage/app/private`.
+
+### Tests added
+
+`tests/Feature/Learning/EnrollmentTest.php` (9) and `LearningAccessTest.php` (16): enrollment on
+paid webhook and free checkout only, webhook/duplicate idempotency, owned-product cart/checkout
+blocking, per-user isolation of enrollments and progress, cross-course lesson rejection, progress
+and completion math (including undo), archived-product access, join details hidden from the public
+page, download authorization and path non-disclosure. 145 tests pass (120 + 25).
+
+### Known limitations — Phase 6
+
+- No quizzes, assessments, or certificates — not in the roadmap's "Bisa belajar" milestone as
+  scoped here.
+- Lessons are plain text; no video hosting, attachments, or rich content editor.
+- No admin UI to author courses, lessons, access details, or files, and no way to revoke an
+  enrollment — all Phase 7 (Admin).
+- No capacity/seat limits and no calendar/booking for mentoring sessions — an enrolled mentoring
+  buyer just gets the access card. Still a documented future need.
+- Webinar/workshop "join" shows a link with no time-gating (visible as soon as the user is enrolled).
+- No refunds, so nothing ever revokes access after payment.
+- Demo "downloads" are `.txt` placeholders even where `file_type` says PDF/ZIP.
+- E2E/browser tests and in-depth QA are intentionally deferred to Phase 8; this phase got a
+  smoke check (all learning routes + one screenshot) only.
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need

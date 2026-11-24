@@ -7,7 +7,8 @@ Long-term user journey: **Discover → Explore → Understand → Purchase → L
 
 This repository currently covers **Phase 0 (foundation)**, **Phase 1 (design system + UI)**,
 **Phase 2 (public website + discovery)**, **Phase 3 (product & catalog domain)**, **Phase 4
-(authentication & user area)**, and **Phase 5 (commerce, checkout & payment)**. See
+(authentication & user area)**, **Phase 5 (commerce, checkout & payment)**, and **Phase 6
+(learning)**. See
 [`PROGRESS.md`](./PROGRESS.md) for status, architectural decisions, and scope boundaries.
 
 ## Stack
@@ -156,6 +157,22 @@ lifecycle, webhook signature/amount/idempotency handling, and local payment test
 **Routes:** `/cart`, `/checkout`, `/orders/{order}`, `/account/orders` (all `auth`-protected),
 `/payments/webhook/midtrans` (CSRF-exempt, server-to-server only).
 
+## Learning domain (Phase 6)
+
+A paid (or free) order becomes an `enrollments` row, which is what grants access:
+
+```text
+users ── enrollments (unique [user_id, product_id])
+              └── lesson_progress ── lessons ── course_modules ── courses
+products ── product_accesses   (join link + instructions, enrolled users only)
+digital_products.file_path     (private disk, streamed after an enrollment check)
+```
+
+Access is always resolved through the signed-in user's own enrollments by product slug — never by an
+enrollment id in a URL — so a non-owner gets `404`. Archived products stay accessible to existing
+buyers. Routes: `/account/learning`, `/learning/{slug}`, `/learning/{slug}/lessons/{lesson}` (+
+`/complete`), `/learning/{slug}/download`. See `docs/PROGRESS.md` → "Phase 6" for the full write-up.
+
 ## Known limitations (Phase 2 & 3)
 
 - No commerce as of Phase 2/3: the product detail CTA was rendered `disabled` with a caption
@@ -179,11 +196,10 @@ lifecycle, webhook signature/amount/idempotency handling, and local payment test
 
 ## Scope boundaries
 
-Phase 0–5 explicitly **exclude**: coupons/discount codes, refunds/chargebacks, a general
-inventory/capacity engine, enrollment, course progress, webinar/mentoring booking, certificates,
-protected digital-file delivery, review backend, user roles beyond guest/authenticated (no
-Student/Instructor/Admin), account deletion, and Filament CRUD for any of the new commerce
-resources. These belong to later phases and are not implemented here, even where the schema or UI
+Phase 0–6 explicitly **exclude**: coupons/discount codes, refunds/chargebacks, a general
+inventory/capacity engine, mentoring booking/scheduling, quizzes, certificates, review backend, user
+roles beyond guest/authenticated (no Student/Instructor/Admin), account deletion, and Filament CRUD
+for the commerce and learning resources (Phase 7). These belong to later phases and are not implemented here, even where the schema or UI
 might hint at them. Authentication and a basic personal account area (`/account`, `/account/profile`,
 `/account/settings`) were added in Phase 4 — see `docs/PROGRESS.md` → "Phase 4" for the full
 architecture and the reasoning behind not using a starter-kit package. Payments/checkout/orders were
