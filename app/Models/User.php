@@ -42,6 +42,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Order::class);
     }
 
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function ownsProduct(int $productId): bool
+    {
+        return $this->enrollments()->where('product_id', $productId)->exists();
+    }
+
     /**
      * Every authenticated user has exactly one cart, created lazily on first use.
      * Explicitly re-caches the relation after creating — `$this->cart` alone

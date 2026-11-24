@@ -54,6 +54,21 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
+    /**
+     * Give the buyer access to everything on this order. Idempotent — the
+     * unique [user_id, product_id] key means a redelivered webhook or a
+     * repeat purchase can never create a second enrollment.
+     */
+    public function grantEnrollments(): void
+    {
+        foreach ($this->items()->whereNotNull('product_id')->get() as $item) {
+            Enrollment::firstOrCreate(
+                ['user_id' => $this->user_id, 'product_id' => $item->product_id],
+                ['order_id' => $this->id, 'enrolled_at' => now()],
+            );
+        }
+    }
+
     public function latestPayment(): ?Payment
     {
         return $this->payments()->latest()->first();

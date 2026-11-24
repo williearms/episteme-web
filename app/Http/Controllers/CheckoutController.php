@@ -13,12 +13,23 @@ use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
-    public function show(Request $request): View|RedirectResponse
+    /** Cart lines that can still be bought: published, and not already owned by the user. */
+    private function purchasableItems(Request $request)
     {
-        $cart = $request->user()->cartOrCreate();
+        $user = $request->user();
+        $cart = $user->cartOrCreate();
         $cart->load('items.product');
 
-        $items = $cart->items->filter(fn ($item) => $item->isPurchasable());
+        $ownedProductIds = $user->enrollments()->pluck('product_id');
+
+        return $cart->items->filter(
+            fn ($item) => $item->isPurchasable() && ! $ownedProductIds->contains($item->product_id)
+        );
+    }
+
+    public function show(Request $request): View|RedirectResponse
+    {
+        $items = $this->purchasableItems($request);
 
         if ($items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
@@ -34,11 +45,10 @@ class CheckoutController extends Controller
     {
         $user = $request->user();
         $cart = $user->cartOrCreate();
-        $cart->load('items.product');
 
         // Re-validate at checkout time, not add-to-cart time: a product may
-        // have gone unpublished since it was added.
-        $items = $cart->items->filter(fn ($item) => $item->isPurchasable());
+        // have gone unpublished (or been bought another way) since it was added.
+        $items = $this->purchasableItems($request);
 
         if ($items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
@@ -89,6 +99,7 @@ class CheckoutController extends Controller
                     'currency' => 'IDR',
                     'paid_at' => now(),
                 ]);
+                $order->grantEnrollments();
             }
 
             $cart->items()->whereIn('id', $items->pluck('id'))->delete();

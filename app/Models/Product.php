@@ -112,6 +112,12 @@ class Product extends Model
         return $this->hasOne(DigitalProduct::class);
     }
 
+    /** Join link / attendee instructions — only ever rendered for enrolled users. */
+    public function access(): HasOne
+    {
+        return $this->hasOne(ProductAccess::class);
+    }
+
     /** The one subtype relation that actually matches this product's type. */
     public function getTypeDetailsAttribute(): ?Model
     {

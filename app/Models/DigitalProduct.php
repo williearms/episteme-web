@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\DigitalProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DigitalProduct extends Model
 {
-    /** @use HasFactory<\Database\Factories\DigitalProductFactory> */
+    /** @use HasFactory<DigitalProductFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -16,6 +17,7 @@ class DigitalProduct extends Model
         'file_type',
         'file_size',
         'access_type',
+        'file_path',
     ];
 
     public function product(): BelongsTo

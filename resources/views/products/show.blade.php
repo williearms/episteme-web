@@ -58,11 +58,18 @@
                     <span class="font-mono text-headline-sm font-bold text-text">{{ $product->price_label }}</span>
 
                     @auth
-                        <form method="POST" action="{{ route('cart.items.store') }}">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <x-ui.button type="submit">{{ $product->cta_label }}</x-ui.button>
-                        </form>
+                        @if (auth()->user()->ownsProduct($product->id))
+                            <x-ui.button href="{{ route('learning.show', $product->slug) }}">
+                                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">school</span>
+                                Go to My Learning
+                            </x-ui.button>
+                        @else
+                            <form method="POST" action="{{ route('cart.items.store') }}">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <x-ui.button type="submit">{{ $product->cta_label }}</x-ui.button>
+                            </form>
+                        @endif
                     @else
                         <x-ui.button href="{{ route('login') }}">Log In to {{ $product->cta_label }}</x-ui.button>
                     @endauth

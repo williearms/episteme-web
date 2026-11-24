@@ -73,6 +73,10 @@ class PaymentWebhookController extends Controller
                 // the user can retry without the order itself being touched.
                 PaymentStatus::Pending, PaymentStatus::Failed => $order->status,
             }]);
+
+            if ($status === PaymentStatus::Paid) {
+                $order->grantEnrollments();
+            }
         });
 
         return response()->json(['message' => 'OK']);

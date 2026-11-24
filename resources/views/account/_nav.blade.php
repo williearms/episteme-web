@@ -18,6 +18,12 @@
         Settings
     </a>
     <a
+        href="{{ route('account.learning.index') }}"
+        class="px-3.5 py-1.5 rounded-md text-label-md font-medium transition-colors {{ request()->routeIs('account.learning.index') ? 'bg-accent text-text' : 'text-text-muted hover:text-text hover:bg-surface-subtle' }}"
+    >
+        Learning
+    </a>
+    <a
         href="{{ route('account.orders.index') }}"
         class="px-3.5 py-1.5 rounded-md text-label-md font-medium transition-colors {{ request()->routeIs('account.orders.index') ? 'bg-accent text-text' : 'text-text-muted hover:text-text hover:bg-surface-subtle' }}"
     >

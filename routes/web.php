@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LearningController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\ProductController;
@@ -31,6 +32,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/retry-payment', [OrderController::class, 'retryPayment'])->name('orders.retry-payment');
+
+    Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
+    Route::get('/learning/{slug}/lessons/{lesson}', [LearningController::class, 'lesson'])->whereNumber('lesson')->name('learning.lessons.show');
+    Route::post('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'complete'])->whereNumber('lesson')->name('learning.lessons.complete');
+    Route::delete('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'uncomplete'])->whereNumber('lesson')->name('learning.lessons.uncomplete');
+    Route::get('/learning/{slug}/download', [LearningController::class, 'download'])->name('learning.download');
 });
 
 Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
@@ -40,6 +47,7 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
     Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders.index');
+    Route::get('/learning', [LearningController::class, 'index'])->name('learning.index');
 });
 
 // No session/CSRF token exists for a provider-originated request — authenticity

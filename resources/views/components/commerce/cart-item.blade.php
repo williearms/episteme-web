@@ -1,4 +1,4 @@
-@props(['item'])
+@props(['item', 'owned' => false])
 
 @php $product = $item->product; @endphp
 
@@ -11,6 +11,9 @@
         @if ($item->isPurchasable())
             <a href="{{ route('products.show', $product) }}" class="text-headline-sm text-text hover:text-primary transition-colors line-clamp-1">{{ $product->title }}</a>
             <p class="text-label-sm text-outline mt-1">{{ $product->type_label }}</p>
+            @if ($owned)
+                <p class="text-label-sm text-error mt-1">You already own this &mdash; remove it from your cart.</p>
+            @endif
         @else
             <span class="text-headline-sm text-text line-clamp-1">{{ $product?->title ?? 'Product no longer available' }}</span>
             <p class="text-label-sm text-error mt-1">No longer available for purchase — please remove it from your cart.</p>

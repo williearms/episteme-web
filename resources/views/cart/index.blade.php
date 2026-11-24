@@ -17,12 +17,12 @@
                 <x-ui.button href="{{ route('products.index') }}" class="mt-6">Explore Catalog</x-ui.button>
             </div>
         @else
-            @php $purchasable = $cart->items->filter(fn ($item) => $item->isPurchasable()); @endphp
+            @php $purchasable = $cart->items->filter(fn ($item) => $item->isPurchasable() && ! $ownedProductIds->contains($item->product_id)); @endphp
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div class="lg:col-span-8 flex flex-col gap-4">
                     @foreach ($cart->items as $item)
-                        <x-commerce.cart-item :item="$item" />
+                        <x-commerce.cart-item :item="$item" :owned="$ownedProductIds->contains($item->product_id)" />
                     @endforeach
                 </div>
 

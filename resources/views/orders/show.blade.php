@@ -40,6 +40,10 @@
                         <p class="text-body-sm text-text-muted">No payment attempt has been started yet.</p>
                     @endif
 
+                    @if ($order->status === \App\Enums\OrderStatus::Paid)
+                        <x-ui.button href="{{ route('account.learning.index') }}" class="mt-4">Go to My Learning</x-ui.button>
+                    @endif
+
                     @if ($order->status === \App\Enums\OrderStatus::Pending && $latestPayment && in_array($latestPayment->status, [\App\Enums\PaymentStatus::Failed, \App\Enums\PaymentStatus::Expired, \App\Enums\PaymentStatus::Cancelled]))
                         <form method="POST" action="{{ route('orders.retry-payment', $order) }}" class="mt-4">
                             @csrf

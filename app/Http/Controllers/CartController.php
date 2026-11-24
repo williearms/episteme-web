@@ -14,7 +14,10 @@ class CartController extends Controller
         $cart = $request->user()->cartOrCreate();
         $cart->load('items.product');
 
-        return view('cart.index', ['cart' => $cart]);
+        return view('cart.index', [
+            'cart' => $cart,
+            'ownedProductIds' => $request->user()->enrollments()->pluck('product_id'),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -30,6 +33,10 @@ class CartController extends Controller
 
         if (! $product || ! $product->isPurchasable()) {
             return back()->with('error', 'This product is not currently available for purchase.');
+        }
+
+        if ($request->user()->ownsProduct($product->id)) {
+            return back()->with('error', 'You already own this product.');
         }
 
         $cart = $request->user()->cartOrCreate();
