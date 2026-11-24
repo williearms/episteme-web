@@ -37,6 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/learning/{slug}/lessons/{lesson}', [LearningController::class, 'lesson'])->whereNumber('lesson')->name('learning.lessons.show');
     Route::post('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'complete'])->whereNumber('lesson')->name('learning.lessons.complete');
     Route::delete('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'uncomplete'])->whereNumber('lesson')->name('learning.lessons.uncomplete');
+    Route::get('/learning/{slug}/quizzes/{quiz}', [LearningController::class, 'quiz'])->whereNumber('quiz')->name('learning.quizzes.show');
+    Route::post('/learning/{slug}/quizzes/{quiz}/attempts', [LearningController::class, 'submitQuiz'])->whereNumber('quiz')->name('learning.quizzes.attempts.store');
+    Route::get('/learning/{slug}/quizzes/{quiz}/attempts/{attempt}', [LearningController::class, 'attempt'])->whereNumber(['quiz', 'attempt'])->name('learning.quizzes.attempts.show');
     Route::get('/learning/{slug}/download', [LearningController::class, 'download'])->name('learning.download');
 });
 

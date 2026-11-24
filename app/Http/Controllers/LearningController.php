@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\ProductType;
 use App\Models\Enrollment;
 use App\Models\Lesson;
+use App\Models\Product;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -31,11 +34,17 @@ class LearningController extends Controller
 
         $lessons = collect();
         $completedIds = collect();
+        $passedQuizIds = collect();
+        $nextQuiz = null;
 
         if ($product->product_type === ProductType::Course) {
-            $product->load('course.modules.lessons');
+            $this->loadCourseOutline($product);
             $lessons = $product->course?->modules->flatMap->lessons ?? collect();
             $completedIds = $enrollment->progress()->pluck('lesson_id');
+            $passedQuizIds = $this->passedQuizIds($enrollment);
+            $nextQuiz = ($product->course?->modules ?? collect())
+                ->map->quiz
+                ->first(fn (?Quiz $quiz) => $quiz && $quiz->questions_count > 0 && ! $passedQuizIds->contains($quiz->id));
         }
 
         return view('learning.show', [
@@ -43,7 +52,9 @@ class LearningController extends Controller
             'product' => $product,
             'lessons' => $lessons,
             'completedIds' => $completedIds,
+            'passedQuizIds' => $passedQuizIds,
             'nextLesson' => $lessons->first(fn (Lesson $lesson) => ! $completedIds->contains($lesson->id)),
+            'nextQuiz' => $nextQuiz,
         ]);
     }
 
@@ -52,7 +63,8 @@ class LearningController extends Controller
         $enrollment = $this->enrollment($request, $slug);
         $this->assertLessonBelongsTo($enrollment, $lesson);
 
-        $product = $enrollment->product->load('course.modules.lessons');
+        $product = $enrollment->product;
+        $this->loadCourseOutline($product);
         $lessons = $product->course->modules->flatMap->lessons->values();
         $index = $lessons->search(fn (Lesson $item) => $item->id === $lesson->id);
 
@@ -62,6 +74,7 @@ class LearningController extends Controller
             'lesson' => $lesson,
             'modules' => $product->course->modules,
             'completedIds' => $enrollment->progress()->pluck('lesson_id'),
+            'passedQuizIds' => $this->passedQuizIds($enrollment),
             'previous' => $index > 0 ? $lessons[$index - 1] : null,
             'next' => $lessons[$index + 1] ?? null,
         ]);
@@ -85,6 +98,56 @@ class LearningController extends Controller
         $enrollment->markLesson($lesson, false);
 
         return back()->with('status', 'Lesson marked as not complete.');
+    }
+
+    public function quiz(Request $request, string $slug, Quiz $quiz): View
+    {
+        $enrollment = $this->enrollment($request, $slug);
+        $this->assertQuizBelongsTo($enrollment, $quiz);
+
+        // Options are rendered without is_correct — the answer key never leaves the server before submit.
+        $quiz->load('questions.options');
+
+        return view('learning.quiz', [
+            'enrollment' => $enrollment,
+            'product' => $enrollment->product,
+            'quiz' => $quiz,
+            'attempts' => $enrollment->quizAttempts()->where('quiz_id', $quiz->id)->latest()->get(),
+        ]);
+    }
+
+    public function submitQuiz(Request $request, string $slug, Quiz $quiz): RedirectResponse
+    {
+        $enrollment = $this->enrollment($request, $slug);
+        $this->assertQuizBelongsTo($enrollment, $quiz);
+
+        $validated = $request->validate([
+            'answers' => ['nullable', 'array'],
+            'answers.*' => ['array'],
+            'answers.*.*' => ['integer'],
+        ]);
+
+        $attempt = $enrollment->quizAttempts()->create(['quiz_id' => $quiz->id] + $quiz->grade($validated['answers'] ?? []));
+
+        $enrollment->syncCompletion();
+
+        return redirect()->route('learning.quizzes.attempts.show', [$slug, $quiz, $attempt]);
+    }
+
+    public function attempt(Request $request, string $slug, Quiz $quiz, QuizAttempt $attempt): View
+    {
+        $enrollment = $this->enrollment($request, $slug);
+        $this->assertQuizBelongsTo($enrollment, $quiz);
+        abort_unless($attempt->enrollment_id === $enrollment->id && $attempt->quiz_id === $quiz->id, 404);
+
+        $quiz->load('questions.options');
+
+        return view('learning.quiz-result', [
+            'enrollment' => $enrollment,
+            'product' => $enrollment->product,
+            'quiz' => $quiz,
+            'attempt' => $attempt,
+        ]);
     }
 
     /** Streams from the private disk — the file's real path is never exposed in a URL. */
@@ -112,6 +175,28 @@ class LearningController extends Controller
             ->whereHas('product', fn ($query) => $query->where('slug', $slug))
             ->with('product')
             ->firstOrFail();
+    }
+
+    private function loadCourseOutline(Product $product): void
+    {
+        $product->load([
+            'course.modules.lessons',
+            'course.modules.quiz' => fn ($query) => $query->withCount('questions'),
+        ]);
+    }
+
+    private function passedQuizIds(Enrollment $enrollment)
+    {
+        return $enrollment->quizAttempts()->where('passed', true)->pluck('quiz_id')->unique()->values();
+    }
+
+    /** Same guard as lessons: a quiz from another course (or one with no questions yet) is a 404. */
+    private function assertQuizBelongsTo(Enrollment $enrollment, Quiz $quiz): void
+    {
+        abort_unless(
+            $quiz->module->course->product_id === $enrollment->product_id && $quiz->questions()->exists(),
+            404
+        );
     }
 
     /** A lesson id from another course must not be readable through this course's enrollment. */

@@ -58,10 +58,15 @@
                     <span class="font-mono text-headline-sm font-bold text-text">{{ $product->price_label }}</span>
 
                     @auth
-                        @if (auth()->user()->ownsProduct($product->id))
+                        @if ($owned)
                             <x-ui.button href="{{ route('learning.show', $product->slug) }}">
                                 <span class="material-symbols-outlined text-[18px]" aria-hidden="true">school</span>
                                 Go to My Learning
+                            </x-ui.button>
+                        @elseif ($inCart)
+                            <x-ui.button href="{{ route('cart.index') }}" variant="outline">
+                                <span class="material-symbols-outlined text-[18px] text-success" aria-hidden="true">check_circle</span>
+                                In your cart &mdash; view cart
                             </x-ui.button>
                         @else
                             <form method="POST" action="{{ route('cart.items.store') }}">

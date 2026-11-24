@@ -30,10 +30,17 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show(Product $product): View
+    public function show(Request $request, Product $product): View
     {
         $product->load(['category', 'instructor', 'course', 'webinar', 'workshop', 'bootcamp', 'mentoring', 'digitalProduct']);
 
-        return view('products.show', compact('product'));
+        $user = $request->user();
+
+        return view('products.show', [
+            'product' => $product,
+            // What the primary button does depends on the viewer: open it, jump to the cart, or add it.
+            'owned' => $user?->ownsProduct($product->id) ?? false,
+            'inCart' => $user?->cart?->items()->where('product_id', $product->id)->exists() ?? false,
+        ]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\CourseModuleResource\RelationManagers;
 
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -21,8 +21,14 @@ class LessonsRelationManager extends RelationManager
         return $form->schema([
             TextInput::make('title')->required()->maxLength(255),
             TextInput::make('position')->numeric()->integer()->minValue(1)->required()->default(1),
-            Textarea::make('content')->required()->rows(10)->columnSpanFull()
-                ->helperText('Plain text. Separate paragraphs with a blank line.'),
+            RichEditor::make('content')
+                ->required()
+                ->columnSpanFull()
+                ->toolbarButtons([
+                    'h2', 'h3', 'bold', 'italic', 'strike', 'link',
+                    'bulletList', 'orderedList', 'blockquote', 'codeBlock', 'undo', 'redo',
+                ])
+                ->helperText('Formatted text. Scripts and unsafe markup are stripped when students view the lesson.'),
         ]);
     }
 

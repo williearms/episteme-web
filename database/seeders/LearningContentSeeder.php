@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\CourseModule;
 use App\Models\Product;
 use App\Models\ProductAccess;
+use App\Models\Quiz;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -31,6 +32,7 @@ class LearningContentSeeder extends Seeder
     public function run(): void
     {
         $this->seedCourses();
+        $this->seedQuizzes();
         $this->seedEventAccess();
         $this->seedDigitalFiles();
     }
@@ -56,8 +58,43 @@ class LearningContentSeeder extends Seeder
                     $module->lessons()->create([
                         'title' => "Materi {$m}.{$l}",
                         'position' => $l,
-                        'content' => "Materi {$m}.{$l} pada kelas {$course->product->title} membahas salah satu bagian dari modul \"{$module->title}\".\n\nBacalah ringkasan ini, coba terapkan pada contoh kasus Anda sendiri, lalu tandai selesai sebelum melanjutkan ke materi berikutnya.",
+                        'content' => '<h2>Materi '.$m.'.'.$l.'</h2>'
+                            .'<p>Materi ini pada kelas <strong>'.e($course->product->title).'</strong> membahas salah satu bagian dari modul &quot;'.e($module->title).'&quot;.</p>'
+                            .'<ul><li>Baca ringkasan ini sampai selesai.</li><li>Coba terapkan pada contoh kasus Anda sendiri.</li><li>Tandai selesai sebelum lanjut ke materi berikutnya.</li></ul>',
                     ]);
+                }
+            }
+        });
+    }
+
+    /** A placeholder final quiz in each course's last module — generic questions, demo data only. */
+    private function seedQuizzes(): void
+    {
+        Course::with(['modules', 'product'])->get()->each(function (Course $course) {
+            $module = $course->modules->last();
+
+            if (! $module || $module->quiz()->exists()) {
+                return;
+            }
+
+            $quiz = Quiz::create([
+                'course_module_id' => $module->id,
+                'title' => 'Kuis Akhir',
+                'description' => 'Kuis contoh (data demo) untuk menguji pemahaman Anda pada kelas '.$course->product->title.'.',
+                'pass_percentage' => 70,
+            ]);
+
+            $questions = [
+                ['Setelah membaca sebuah materi, langkah terbaik berikutnya adalah…', 'Mencoba menerapkannya pada kasus nyata membantu mengunci pemahaman.', [['Menerapkannya pada contoh kasus', true], ['Langsung menutup halaman', false], ['Melewati semua latihan', false]]],
+                ['Manakah yang termasuk kebiasaan belajar yang baik? (pilih semua yang benar)', 'Konsistensi dan latihan aktif sama-sama penting.', [['Belajar sedikit tetapi rutin', true], ['Mengerjakan latihan secara aktif', true], ['Menunda semua materi ke hari terakhir', false]]],
+                ['Kelas ini boleh diulang kapan saja setelah dibeli.', 'Akses berlaku selama akun Anda terdaftar pada kelas ini.', [['Benar', true], ['Salah', false]]],
+            ];
+
+            foreach ($questions as $q => [$body, $explanation, $options]) {
+                $question = $quiz->questions()->create(['body' => $body, 'explanation' => $explanation, 'position' => $q + 1]);
+
+                foreach ($options as $o => [$text, $correct]) {
+                    $question->options()->create(['body' => $text, 'is_correct' => $correct, 'position' => $o + 1]);
                 }
             }
         });

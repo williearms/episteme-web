@@ -43,16 +43,24 @@ class Enrollment extends Model
         return $this->progress()->where('lesson_id', $lesson->id)->exists();
     }
 
-    /** Share of the course's lessons this enrollment has completed, 0–100. */
+    public function quizAttempts(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    /**
+     * Share of the course this enrollment has finished, 0–100. A lesson counts when it's
+     * marked complete and a quiz counts once the student has passed it (any attempt).
+     */
     public function progressPercent(): int
     {
-        $total = $this->courseLessonCount();
+        $total = $this->courseLessonCount() + $this->courseQuizCount();
 
         if ($total === 0) {
             return 0;
         }
 
-        return (int) floor($this->progress()->count() / $total * 100);
+        return (int) floor(($this->progress()->count() + $this->passedQuizCount()) / $total * 100);
     }
 
     public function markLesson(Lesson $lesson, bool $completed): void
@@ -66,7 +74,7 @@ class Enrollment extends Model
         $this->syncCompletion();
     }
 
-    private function syncCompletion(): void
+    public function syncCompletion(): void
     {
         $finished = $this->progressPercent() === 100;
 
@@ -75,6 +83,24 @@ class Enrollment extends Model
         } elseif (! $finished && $this->completed_at) {
             $this->update(['completed_at' => null]);
         }
+    }
+
+    /** Quizzes without questions are invisible to students, so they can't block completion. */
+    private function courseQuizCount(): int
+    {
+        return Quiz::query()
+            ->has('questions')
+            ->whereHas('module.course', fn ($query) => $query->where('product_id', $this->product_id))
+            ->count();
+    }
+
+    private function passedQuizCount(): int
+    {
+        return $this->quizAttempts()
+            ->where('passed', true)
+            ->whereHas('quiz', fn ($query) => $query->has('questions'))
+            ->distinct()
+            ->count('quiz_id');
     }
 
     private function courseLessonCount(): int

@@ -16,11 +16,8 @@
                     <h1 class="text-headline-lg text-text tracking-tight mt-1">{{ $lesson->title }}</h1>
                 </div>
 
-                <div class="text-body-md text-text-muted leading-relaxed space-y-4">
-                    @foreach (explode("\n\n", $lesson->content) as $paragraph)
-                        <p>{{ $paragraph }}</p>
-                    @endforeach
-                </div>
+                {{-- content_html is sanitized (see App\Support\RichText) — the only unescaped output of author content. --}}
+                <div class="lesson-content text-body-md">{!! $lesson->content_html !!}</div>
 
                 <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-border/40">
                     @if ($completedIds->contains($lesson->id))
@@ -69,6 +66,14 @@
                                         </a>
                                     </li>
                                 @endforeach
+                                @if ($module->quiz && $module->quiz->questions_count > 0)
+                                    <li>
+                                        <a href="{{ route('learning.quizzes.show', [$product->slug, $module->quiz]) }}" class="flex items-center gap-2 px-2 py-1.5 rounded-md text-body-sm font-medium text-text hover:bg-surface-subtle">
+                                            <span class="material-symbols-outlined text-[18px] {{ $passedQuizIds->contains($module->quiz->id) ? 'text-success' : 'text-primary' }}" aria-hidden="true">{{ $passedQuizIds->contains($module->quiz->id) ? 'check_circle' : 'quiz' }}</span>
+                                            Quiz: {{ $module->quiz->title }}
+                                        </a>
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                     @endforeach

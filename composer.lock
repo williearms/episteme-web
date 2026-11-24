@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a6bd70e62fba1e151e4821adc505a8ef",
+    "content-hash": "4368143d7803b765f220a2499ddc249f",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -5504,16 +5504,16 @@
         },
         {
             "name": "symfony/html-sanitizer",
-            "version": "v7.4.19",
+            "version": "v7.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/html-sanitizer.git",
-                "reference": "d49c351e24d38604466e5a51ab20cbc99f9493c7"
+                "reference": "4de7491580c8031d83252b60ddfff3f031b0cd27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/html-sanitizer/zipball/d49c351e24d38604466e5a51ab20cbc99f9493c7",
-                "reference": "d49c351e24d38604466e5a51ab20cbc99f9493c7",
+                "url": "https://api.github.com/repos/symfony/html-sanitizer/zipball/4de7491580c8031d83252b60ddfff3f031b0cd27",
+                "reference": "4de7491580c8031d83252b60ddfff3f031b0cd27",
                 "shasum": ""
             },
             "require": {
@@ -5554,7 +5554,7 @@
                 "sanitizer"
             ],
             "support": {
-                "source": "https://github.com/symfony/html-sanitizer/tree/v7.4.19"
+                "source": "https://github.com/symfony/html-sanitizer/tree/v7.4.23"
             },
             "funding": [
                 {
@@ -5574,7 +5574,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-04T10:11:42+00:00"
+            "time": "2026-11-04T08:27:22+00:00"
         },
         {
             "name": "symfony/http-foundation",

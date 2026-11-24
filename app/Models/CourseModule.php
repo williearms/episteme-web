@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CourseModule extends Model
 {
@@ -18,5 +19,10 @@ class CourseModule extends Model
     public function lessons(): HasMany
     {
         return $this->hasMany(Lesson::class)->orderBy('position');
+    }
+
+    public function quiz(): HasOne
+    {
+        return $this->hasOne(Quiz::class);
     }
 }

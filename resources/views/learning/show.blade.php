@@ -42,6 +42,16 @@
                                     </li>
                                 @endforeach
                             </ul>
+                            @if ($module->quiz && $module->quiz->questions_count > 0)
+                                <a href="{{ route('learning.quizzes.show', [$product->slug, $module->quiz]) }}" class="flex items-center gap-3 px-5 py-3 text-body-sm font-medium text-text bg-surface-subtle border-t border-border/40 hover:bg-surface-muted transition-colors">
+                                    @if ($passedQuizIds->contains($module->quiz->id))
+                                        <span class="material-symbols-outlined text-[20px] text-success" aria-label="Passed">check_circle</span>
+                                    @else
+                                        <span class="material-symbols-outlined text-[20px] text-primary" aria-label="Not passed yet">quiz</span>
+                                    @endif
+                                    Quiz: {{ $module->quiz->title }}
+                                </a>
+                            @endif
                         </div>
                     @empty
                         <div class="border border-dashed border-border/60 rounded-card p-8 text-center text-body-sm text-text-muted">
@@ -59,8 +69,10 @@
                         @endif
                         @if ($nextLesson)
                             <x-ui.button href="{{ route('learning.lessons.show', [$product->slug, $nextLesson]) }}" class="w-full">
-                                {{ $completedIds->isEmpty() ? 'Start Course' : 'Continue Learning' }}
+                                {{ $completedIds->isEmpty() && $passedQuizIds->isEmpty() ? 'Start Course' : 'Continue Learning' }}
                             </x-ui.button>
+                        @elseif ($nextQuiz)
+                            <x-ui.button href="{{ route('learning.quizzes.show', [$product->slug, $nextQuiz]) }}" class="w-full">Take the next quiz</x-ui.button>
                         @endif
                     </div>
                 </div>
