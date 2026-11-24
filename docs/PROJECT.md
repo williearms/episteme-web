@@ -168,6 +168,10 @@ products ── product_accesses   (join link + instructions, enrolled users onl
 digital_products.file_path     (private disk, streamed after an enrollment check)
 ```
 
+Courses also have **quizzes** (one per module; questions → options; server-side grading, stored
+attempts) and **rich-text lessons** (HTML, sanitized on output); passing every quiz is part of
+completing a course. See `docs/PROGRESS.md` → "Follow-up to Phases 6–7".
+
 Access is always resolved through the signed-in user's own enrollments by product slug — never by an
 enrollment id in a URL — so a non-owner gets `404`. Archived products stay accessible to existing
 buyers. Routes: `/account/learning`, `/learning/{slug}`, `/learning/{slug}/lessons/{lesson}` (+
@@ -206,7 +210,7 @@ deleted (their deletes cascade). See `docs/PROGRESS.md` → "Phase 7".
 ## Scope boundaries
 
 Phase 0–7 explicitly **exclude**: coupons/discount codes, refunds/chargebacks, a general
-inventory/capacity engine, mentoring booking/scheduling, quizzes, certificates, review backend,
+inventory/capacity engine, mentoring booking/scheduling, certificates, review backend,
 granular roles/permissions (there is just guest, authenticated user, and admin), account deletion,
 an admin audit log, and E2E tests (Phase 8). These belong to later phases and are not implemented here, even where the schema or UI
 might hint at them. Authentication and a basic personal account area (`/account`, `/account/profile`,

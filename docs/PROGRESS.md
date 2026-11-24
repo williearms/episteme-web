@@ -711,6 +711,81 @@ lessons via the relation manager, and the dashboard totals. 171 tests pass (145 
 - Browser/E2E testing is deferred to Phase 8; this phase got Livewire feature tests plus a smoke
   check of every panel page and the product edit/create forms.
 
+## Follow-up to Phases 6–7 — quizzes, rich lessons, product button
+
+Raised after hands-on testing. This **supersedes** the Phase 6 limitation "No quizzes, assessments…"
+and the Phase 7 limitation "Lessons are plain text; no rich editor".
+
+### Product page button
+
+Once the user's cart already holds a product, the primary button is replaced by "In your cart —
+view cart" (a link to `/cart`) instead of offering "Enroll Now" again. Owned products still show "Go
+to My Learning", which wins over "in cart". `ProductController::show` computes `$owned`/`$inCart` so
+the view stays dumb. (Server-side, adding an already-carted product still increments its quantity —
+unchanged from Phase 5 — but the UI no longer offers it.)
+
+### Rich-text lessons
+
+- Lesson `content` is now HTML, edited in the admin with Filament's `RichEditor` (Trix): headings,
+  bold/italic/strike, links, lists, blockquote, code block, undo/redo. No raw-HTML source view and
+  no image upload (attach-files is disabled — there's no public-disk/`storage:link` story yet).
+- **Sanitized on output.** The lesson page prints `content_html` unescaped, so every render goes
+  through `App\Support\RichText` (`symfony/html-sanitizer`, now an explicit dependency): scripts,
+  iframes, event handlers, inline styles and `javascript:` links are removed; safe links get
+  `rel="noopener noreferrer"` + `target="_blank"`. This is the *only* place author content is printed
+  unescaped. Defence in depth — admins are trusted, but a compromised admin account or pasted snippet
+  must not become stored XSS against every student.
+- A data migration wraps existing plain-text lessons in `<p>` so they keep their paragraphs.
+  Not reversible (documented in the migration).
+- `.lesson-content` styles in `resources/css/app.css` — Tailwind's preflight strips list/heading
+  styling, so it's restated for that container.
+
+### Quizzes / assessments
+
+```text
+course_modules ── quizzes (1:1, unique course_module_id)
+                    └── quiz_questions ── quiz_options (is_correct)
+enrollments ── quiz_attempts (stored score + answers) ── quizzes
+```
+
+- **One quiz per module.** A "final assessment" is a quiz in the last module. Each quiz has a pass
+  mark (default 70%); retakes are unlimited and a quiz counts as done once *any* attempt passed.
+- **Question types** are derived, not stored: one correct option → radio, several → checkboxes
+  ("Select all that apply"). Multiple-answer questions are all-or-nothing: the chosen set must equal
+  the correct set. (No essay/free-text — it can't be auto-graded.)
+- **Grading is server-side only** (`Quiz::grade()`). The quiz page renders option text without
+  `is_correct`, and explanations/correct answers appear only on the result page *after* submitting
+  (tests assert neither is in the pre-submit HTML). Option ids that don't belong to the question are
+  ignored, blanks score zero, and a question mistakenly configured with no correct option can't
+  hand out free credit.
+- **The score is stored**, not recomputed: editing a quiz later can't change a past grade. The
+  result page's per-question review reads current questions, so it can drift from what the student
+  saw if the quiz was edited afterwards — the percentage and pass/fail never do.
+- **Course completion now requires passing every quiz** as well as completing every lesson;
+  `progressPercent()` counts both. Quizzes with no questions are invisible to students and never
+  block completion. Courses without quizzes behave exactly as before.
+- **Access** follows the Phase 6 rule: everything resolves through the user's own enrollment; a quiz
+  from another course, another user's attempt, or a quiz with no questions is a `404`.
+- **Admin** (Learning → Quizzes): module picker, pass mark, and a nested repeater of questions →
+  options with a "Correct" toggle. Validation: ≥ 1 question, ≥ 2 options per question, ≥ 1 correct
+  option, one quiz per module. A quiz that already has student attempts can't be deleted.
+- Seed data adds a placeholder "Kuis Akhir" (3 generic demo questions) to each course's last module.
+
+### Routes added
+
+`learning.quizzes.show` (GET `/learning/{slug}/quizzes/{quiz}`), `learning.quizzes.attempts.store`
+(POST `…/attempts`), `learning.quizzes.attempts.show` (GET `…/attempts/{attempt}`). All `auth`.
+
+### Tests added
+
+`QuizTest` (18), `LessonContentTest` (6), `ProductCtaTest` (6), `AdminQuizTest` (8). 209 tests pass.
+
+### Still not built
+
+Certificates, quiz time limits / attempt caps, question banks or randomization, essay questions,
+image/file attachments in lessons, a raw-HTML source view (swap in TinyMCE if that's wanted — it
+needs a Filament plugin and a licence/API-key decision), and quiz analytics in the admin.
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need
