@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CourseModuleResource\RelationManagers;
 
+use App\Support\LessonAttachment;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -11,6 +12,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class LessonsRelationManager extends RelationManager
 {
@@ -25,10 +27,17 @@ class LessonsRelationManager extends RelationManager
                 ->required()
                 ->columnSpanFull()
                 ->toolbarButtons([
-                    'h2', 'h3', 'bold', 'italic', 'strike', 'link',
+                    'h2', 'h3', 'bold', 'italic', 'strike', 'link', 'attachFiles',
                     'bulletList', 'orderedList', 'blockquote', 'codeBlock', 'undo', 'redo',
                 ])
-                ->helperText('Formatted text. Scripts and unsafe markup are stripped when students view the lesson.'),
+                // Public disk so students' browsers can load the images (run `php artisan
+                // storage:link` once). Filament has no type/size limit for attachments, so
+                // the upload goes through LessonAttachment, which allows only real images.
+                ->fileAttachmentsDisk(LessonAttachment::DISK)
+                ->fileAttachmentsDirectory(LessonAttachment::DIRECTORY)
+                ->fileAttachmentsVisibility('public')
+                ->saveUploadedFileAttachmentsUsing(fn (TemporaryUploadedFile $file) => LessonAttachment::store($file))
+                ->helperText('Formatted text and images (PNG, JPG, WebP, GIF, up to 2 MB). Scripts and unsafe markup are stripped when students view the lesson.'),
         ]);
     }
 

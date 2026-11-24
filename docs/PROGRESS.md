@@ -727,8 +727,19 @@ unchanged from Phase 5 — but the UI no longer offers it.)
 ### Rich-text lessons
 
 - Lesson `content` is now HTML, edited in the admin with Filament's `RichEditor` (Trix): headings,
-  bold/italic/strike, links, lists, blockquote, code block, undo/redo. No raw-HTML source view and
-  no image upload (attach-files is disabled — there's no public-disk/`storage:link` story yet).
+  bold/italic/strike, links, lists, blockquote, code block, image attachments, undo/redo. There is
+  no raw-HTML source view.
+- **Image attachments** are stored on the `public` disk under `lesson-attachments/`, so the dev
+  environment needs a `public/storage` symlink (`php artisan storage:link`; inside the container,
+  `ln -s ../storage/app/public public/storage` gives a relative link that also resolves from the
+  WSL host). Filament 3.3's RichEditor has **no type or size limit** for attachments, which on a
+  public disk would let any file (`.php`, `.html`, `.svg`) be uploaded, so uploads go through
+  `App\Support\LessonAttachment`: the type is decided from the file's *actual bytes* (never the
+  client's name or declared type), only PNG/JPEG/WebP/GIF are accepted, ≤ 2 MB, and the stored name
+  is `{uuid}.{detected extension}` — a script renamed `.png` or an SVG is rejected. The tests use real
+  files rather than `UploadedFile::fake()`, which derives its type from the *filename* and would have
+  let the renamed-script case pass for the wrong reason. Images are publicly reachable by URL (they're
+  not access-controlled like downloads).
 - **Sanitized on output.** The lesson page prints `content_html` unescaped, so every render goes
   through `App\Support\RichText` (`symfony/html-sanitizer`, now an explicit dependency): scripts,
   iframes, event handlers, inline styles and `javascript:` links are removed; safe links get
@@ -783,7 +794,7 @@ enrollments ── quiz_attempts (stored score + answers) ── quizzes
 ### Still not built
 
 Certificates, quiz time limits / attempt caps, question banks or randomization, essay questions,
-image/file attachments in lessons, a raw-HTML source view (swap in TinyMCE if that's wanted — it
+non-image attachments in lessons, video embeds, a raw-HTML source view (swap in TinyMCE if that's wanted — it
 needs a Filament plugin and a licence/API-key decision), and quiz analytics in the admin.
 
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)

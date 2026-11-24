@@ -51,6 +51,26 @@ class LessonContentTest extends TestCase
         $this->assertStringNotContainsString('style=', RichText::sanitize('<p style="position:fixed;inset:0">x</p>'));
     }
 
+    public function test_images_from_the_public_storage_survive_sanitizing(): void
+    {
+        $html = RichText::sanitize('<figure><img src="http://localhost:8010/storage/lesson-attachments/a.png" alt="Diagram"></figure><img src="/storage/lesson-attachments/b.png">');
+
+        $this->assertStringContainsString('src="http://localhost:8010/storage/lesson-attachments/a.png"', $html);
+        $this->assertStringContainsString('src="/storage/lesson-attachments/b.png"', $html);
+        $this->assertStringContainsString('alt="Diagram"', $html);
+    }
+
+    public function test_images_cannot_smuggle_script_through_their_source_or_handlers(): void
+    {
+        $html = RichText::sanitize('<img src="javascript:alert(1)"><img src="data:text/html;base64,PHNjcmlwdD4=" onerror="x()"><img src="https://example.com/ok.png" onload="y()">');
+
+        $this->assertStringNotContainsString('javascript:', $html);
+        $this->assertStringNotContainsString('data:', $html);
+        $this->assertStringNotContainsString('onerror', $html);
+        $this->assertStringNotContainsString('onload', $html);
+        $this->assertStringContainsString('https://example.com/ok.png', $html);
+    }
+
     public function test_null_content_is_an_empty_string(): void
     {
         $this->assertSame('', RichText::sanitize(null));
