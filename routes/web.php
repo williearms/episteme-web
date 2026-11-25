@@ -23,22 +23,22 @@ Route::get('/categories/{category}', [CategoryController::class, 'show'])->name(
 
 Route::middleware('auth')->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
-    Route::patch('/cart/items/{product}', [CartController::class, 'update'])->whereNumber('product')->name('cart.items.update');
-    Route::delete('/cart/items/{product}', [CartController::class, 'destroy'])->whereNumber('product')->name('cart.items.destroy');
+    Route::post('/cart/items', [CartController::class, 'store'])->middleware('throttle:cart')->name('cart.items.store');
+    Route::patch('/cart/items/{product}', [CartController::class, 'update'])->whereNumber('product')->middleware('throttle:cart')->name('cart.items.update');
+    Route::delete('/cart/items/{product}', [CartController::class, 'destroy'])->whereNumber('product')->middleware('throttle:cart')->name('cart.items.destroy');
 
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('checkout.store');
 
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/retry-payment', [OrderController::class, 'retryPayment'])->name('orders.retry-payment');
+    Route::post('/orders/{order}/retry-payment', [OrderController::class, 'retryPayment'])->middleware('throttle:checkout')->name('orders.retry-payment');
 
     Route::get('/learning/{slug}', [LearningController::class, 'show'])->name('learning.show');
     Route::get('/learning/{slug}/lessons/{lesson}', [LearningController::class, 'lesson'])->whereNumber('lesson')->name('learning.lessons.show');
-    Route::post('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'complete'])->whereNumber('lesson')->name('learning.lessons.complete');
-    Route::delete('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'uncomplete'])->whereNumber('lesson')->name('learning.lessons.uncomplete');
+    Route::post('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'complete'])->whereNumber('lesson')->middleware('throttle:lesson-progress')->name('learning.lessons.complete');
+    Route::delete('/learning/{slug}/lessons/{lesson}/complete', [LearningController::class, 'uncomplete'])->whereNumber('lesson')->middleware('throttle:lesson-progress')->name('learning.lessons.uncomplete');
     Route::get('/learning/{slug}/quizzes/{quiz}', [LearningController::class, 'quiz'])->whereNumber('quiz')->name('learning.quizzes.show');
-    Route::post('/learning/{slug}/quizzes/{quiz}/attempts', [LearningController::class, 'submitQuiz'])->whereNumber('quiz')->name('learning.quizzes.attempts.store');
+    Route::post('/learning/{slug}/quizzes/{quiz}/attempts', [LearningController::class, 'submitQuiz'])->whereNumber('quiz')->middleware('throttle:quiz')->name('learning.quizzes.attempts.store');
     Route::get('/learning/{slug}/quizzes/{quiz}/attempts/{attempt}', [LearningController::class, 'attempt'])->whereNumber(['quiz', 'attempt'])->name('learning.quizzes.attempts.show');
     Route::get('/learning/{slug}/download', [LearningController::class, 'download'])->name('learning.download');
 });
@@ -46,9 +46,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:profile')->name('profile.update');
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
-    Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->middleware('throttle:password-change')->name('settings.password');
     Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders.index');
     Route::get('/learning', [LearningController::class, 'index'])->name('learning.index');
 });

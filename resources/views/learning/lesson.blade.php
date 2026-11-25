@@ -25,7 +25,7 @@
                             @csrf
                             @method('DELETE')
                             <x-ui.button type="submit" variant="outline">
-                                <span class="material-symbols-outlined text-[18px] text-success" aria-hidden="true">check_circle</span>
+                                <span class="material-symbols-outlined text-[18px] text-success-strong" aria-hidden="true">check_circle</span>
                                 Completed &mdash; undo
                             </x-ui.button>
                         </form>
@@ -61,7 +61,7 @@
                                             @if ($item->id === $lesson->id) aria-current="page" @endif
                                             class="flex items-center gap-2 px-2 py-1.5 rounded-md text-body-sm {{ $item->id === $lesson->id ? 'bg-accent/20 text-text font-medium' : 'text-text-muted hover:bg-surface-subtle' }}"
                                         >
-                                            <span class="material-symbols-outlined text-[18px] {{ $completedIds->contains($item->id) ? 'text-success' : 'text-outline' }}" aria-hidden="true">{{ $completedIds->contains($item->id) ? 'check_circle' : 'radio_button_unchecked' }}</span>
+                                            <span class="material-symbols-outlined text-[18px] {{ $completedIds->contains($item->id) ? 'text-success-strong' : 'text-outline' }}" aria-hidden="true">{{ $completedIds->contains($item->id) ? 'check_circle' : 'radio_button_unchecked' }}</span>
                                             {{ $item->title }}
                                         </a>
                                     </li>
@@ -69,7 +69,7 @@
                                 @if ($module->quiz && $module->quiz->questions_count > 0)
                                     <li>
                                         <a href="{{ route('learning.quizzes.show', [$product->slug, $module->quiz]) }}" class="flex items-center gap-2 px-2 py-1.5 rounded-md text-body-sm font-medium text-text hover:bg-surface-subtle">
-                                            <span class="material-symbols-outlined text-[18px] {{ $passedQuizIds->contains($module->quiz->id) ? 'text-success' : 'text-primary' }}" aria-hidden="true">{{ $passedQuizIds->contains($module->quiz->id) ? 'check_circle' : 'quiz' }}</span>
+                                            <span class="material-symbols-outlined text-[18px] {{ $passedQuizIds->contains($module->quiz->id) ? 'text-success-strong' : 'text-primary' }}" aria-hidden="true">{{ $passedQuizIds->contains($module->quiz->id) ? 'check_circle' : 'quiz' }}</span>
                                             Quiz: {{ $module->quiz->title }}
                                         </a>
                                     </li>

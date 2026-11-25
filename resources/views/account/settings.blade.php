@@ -25,7 +25,7 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <dt class="text-text-muted">Email status</dt>
-                        <dd class="font-medium {{ $user->hasVerifiedEmail() ? 'text-success' : 'text-error' }}">
+                        <dd class="font-medium {{ $user->hasVerifiedEmail() ? 'text-success-strong' : 'text-error' }}">
                             {{ $user->hasVerifiedEmail() ? 'Verified' : 'Not verified' }}
                         </dd>
                     </div>

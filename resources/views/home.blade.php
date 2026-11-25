@@ -409,12 +409,12 @@
                 </p>
 
                 <div class="flex flex-wrap items-center gap-4">
-                    <x-ui.button href="#catalog" size="lg" class="flex items-center gap-2">
+                    <x-ui.button href="{{ route('products.index') }}" size="lg" class="flex items-center gap-2">
                         <span>Explore Episteme</span>
                         <span class="material-symbols-outlined text-sm">arrow_forward</span>
                     </x-ui.button>
-                    <x-ui.button href="#consultation" variant="outline" size="lg">
-                        Request Cohort Syllabus
+                    <x-ui.button href="{{ route('products.index', ['type' => 'bootcamp']) }}" variant="outline" size="lg">
+                        Browse bootcamps
                     </x-ui.button>
                 </div>
             </div>

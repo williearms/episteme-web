@@ -53,7 +53,7 @@ class CourseModuleResource extends Resource
                 ->searchable()
                 ->required(),
             TextInput::make('title')->required()->maxLength(255),
-            TextInput::make('position')->numeric()->integer()->minValue(1)->required()
+            TextInput::make('position')->numeric()->integer()->minValue(1)->maxValue(65535)->required()
                 ->default(fn () => 1)
                 ->helperText('Order within the course (1 = first).'),
         ]);

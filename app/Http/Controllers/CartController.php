@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['required', 'integer', 'exists:products,id'],
-            'quantity' => ['nullable', 'integer', 'min:1'],
+            'quantity' => ['nullable', 'integer', 'min:1', 'max:'.CartItem::MAX_QUANTITY],
         ]);
 
         // Server determines the product and its price — the client's own
@@ -49,7 +50,7 @@ class CartController extends Controller
             // than creating a duplicate row (cart_items has a unique constraint
             // on [cart_id, product_id] to guarantee this at the DB level too).
             $item->update([
-                'quantity' => $item->quantity + $quantity,
+                'quantity' => min(CartItem::MAX_QUANTITY, $item->quantity + $quantity),
                 'unit_price' => $product->price,
             ]);
         } else {
@@ -71,7 +72,7 @@ class CartController extends Controller
     public function update(Request $request, int $product): RedirectResponse
     {
         $validated = $request->validate([
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:'.CartItem::MAX_QUANTITY],
         ]);
 
         $cart = $request->user()->cartOrCreate();

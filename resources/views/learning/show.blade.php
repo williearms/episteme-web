@@ -33,7 +33,7 @@
                                     <li>
                                         <a href="{{ route('learning.lessons.show', [$product->slug, $lesson]) }}" class="flex items-center gap-3 px-5 py-3 text-body-sm text-text hover:bg-surface-subtle transition-colors">
                                             @if ($completedIds->contains($lesson->id))
-                                                <span class="material-symbols-outlined text-[20px] text-success" aria-label="Completed">check_circle</span>
+                                                <span class="material-symbols-outlined text-[20px] text-success-strong" aria-label="Completed">check_circle</span>
                                             @else
                                                 <span class="material-symbols-outlined text-[20px] text-outline" aria-label="Not completed">radio_button_unchecked</span>
                                             @endif
@@ -45,7 +45,7 @@
                             @if ($module->quiz && $module->quiz->questions_count > 0)
                                 <a href="{{ route('learning.quizzes.show', [$product->slug, $module->quiz]) }}" class="flex items-center gap-3 px-5 py-3 text-body-sm font-medium text-text bg-surface-subtle border-t border-border/40 hover:bg-surface-muted transition-colors">
                                     @if ($passedQuizIds->contains($module->quiz->id))
-                                        <span class="material-symbols-outlined text-[20px] text-success" aria-label="Passed">check_circle</span>
+                                        <span class="material-symbols-outlined text-[20px] text-success-strong" aria-label="Passed">check_circle</span>
                                     @else
                                         <span class="material-symbols-outlined text-[20px] text-primary" aria-label="Not passed yet">quiz</span>
                                     @endif
@@ -65,7 +65,7 @@
                         <h2 class="text-label-sm font-semibold text-outline uppercase tracking-wider">Your progress</h2>
                         <x-learning.progress-bar :percent="$enrollment->progressPercent()" />
                         @if ($enrollment->completed_at)
-                            <p class="text-body-sm text-success font-semibold">You&rsquo;ve completed this course.</p>
+                            <p class="text-body-sm text-success-strong font-semibold">You&rsquo;ve completed this course.</p>
                         @endif
                         @if ($nextLesson)
                             <x-ui.button href="{{ route('learning.lessons.show', [$product->slug, $nextLesson]) }}" class="w-full">

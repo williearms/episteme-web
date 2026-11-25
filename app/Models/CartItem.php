@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CartItem extends Model
 {
+    /** Per line. Without a cap, a crafted quantity overflows the unsigned-int columns and 500s. */
+    public const MAX_QUANTITY = 10;
+
     protected $fillable = ['cart_id', 'product_id', 'quantity', 'unit_price'];
 
     protected function casts(): array

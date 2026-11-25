@@ -14,6 +14,9 @@ class Order extends Model
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
+    /** Well under the unsigned-int column limit (4.29 billion), so a crafted cart can't overflow it. */
+    public const MAX_TOTAL = 2_000_000_000;
+
     protected $fillable = [
         'user_id',
         'order_number',

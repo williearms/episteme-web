@@ -22,7 +22,11 @@ class MidtransGateway implements PaymentGateway
 
     public function charge(Order $order, Payment $payment): array
     {
-        $response = Http::withBasicAuth($this->serverKey ?? '', '')
+        if ($this->serverKey === null || $this->serverKey === '') {
+            throw new \RuntimeException('MIDTRANS_SERVER_KEY is not configured.');
+        }
+
+        $response = Http::withBasicAuth($this->serverKey, '')
             ->acceptJson()
             ->post($this->baseUrl().'/transactions', [
                 'transaction_details' => [
@@ -60,15 +64,25 @@ class MidtransGateway implements PaymentGateway
 
     public function verifyWebhookSignature(array $payload): bool
     {
-        if (! isset($payload['order_id'], $payload['status_code'], $payload['gross_amount'], $payload['signature_key'])) {
+        // The signature is sha512(order + status + amount + server key). With no key configured it
+        // is computable by anyone, so a missing key must reject every webhook rather than trust it.
+        if ($this->serverKey === null || $this->serverKey === '') {
             return false;
         }
 
+        // Every field must be present and a plain scalar: the body is attacker-controlled JSON, and
+        // concatenating an array/object would raise a server error instead of a clean rejection.
+        foreach (['order_id', 'status_code', 'gross_amount', 'signature_key'] as $field) {
+            if (! isset($payload[$field]) || ! is_scalar($payload[$field])) {
+                return false;
+            }
+        }
+
         $expected = hash('sha512',
-            $payload['order_id'].$payload['status_code'].$payload['gross_amount'].($this->serverKey ?? '')
+            $payload['order_id'].$payload['status_code'].$payload['gross_amount'].$this->serverKey
         );
 
-        return hash_equals($expected, $payload['signature_key']);
+        return hash_equals($expected, (string) $payload['signature_key']);
     }
 
     /** @param  ?string  $context  Midtrans's `fraud_status`, relevant only for the `capture` transaction_status. */

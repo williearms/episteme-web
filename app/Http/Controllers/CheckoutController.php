@@ -27,6 +27,12 @@ class CheckoutController extends Controller
         );
     }
 
+    /** Sum at the products' current prices — never the cart's cached unit_price. */
+    private function total($items): int
+    {
+        return (int) $items->sum(fn ($item) => $item->product->price * $item->quantity);
+    }
+
     public function show(Request $request): View|RedirectResponse
     {
         $items = $this->purchasableItems($request);
@@ -35,9 +41,13 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        if ($this->total($items) > Order::MAX_TOTAL) {
+            return redirect()->route('cart.index')->with('error', 'This order is too large to process in one go. Please split it into smaller orders.');
+        }
+
         return view('checkout.show', [
             'items' => $items,
-            'subtotal' => $items->sum(fn ($item) => $item->product->price * $item->quantity),
+            'subtotal' => $this->total($items),
         ]);
     }
 
@@ -54,7 +64,20 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        if ($this->total($items) > Order::MAX_TOTAL) {
+            return redirect()->route('cart.index')->with('error', 'This order is too large to process in one go. Please split it into smaller orders.');
+        }
+
         $order = DB::transaction(function () use ($user, $cart, $items) {
+            // Lock this cart's rows first. A double-clicked "Place order" (or two tabs) sends two
+            // requests that both read the same cart; the second now waits here, finds the rows
+            // already consumed, and bails instead of creating a duplicate order.
+            $stillThere = $cart->items()->whereIn('id', $items->pluck('id'))->lockForUpdate()->count();
+
+            if ($stillThere !== $items->count()) {
+                return null;
+            }
+
             $subtotal = 0;
             $rows = [];
 
@@ -106,6 +129,10 @@ class CheckoutController extends Controller
 
             return $order;
         });
+
+        if ($order === null) {
+            return redirect()->route('cart.index')->with('error', 'Your cart changed while we were placing the order. Please review it and try again.');
+        }
 
         if ($order->total === 0) {
             return redirect()->route('orders.show', $order)->with('status', 'Order placed — no payment required.');

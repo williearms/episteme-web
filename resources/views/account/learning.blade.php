@@ -26,7 +26,7 @@
                                 <x-learning.progress-bar :percent="$enrollment->progressPercent()" />
                             @endif
                             @if ($enrollment->completed_at)
-                                <span class="text-label-sm text-success font-semibold">Completed</span>
+                                <span class="text-label-sm text-success-strong font-semibold">Completed</span>
                             @endif
                         </div>
                     </a>

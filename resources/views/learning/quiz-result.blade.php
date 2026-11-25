@@ -32,7 +32,7 @@
                 @endphp
                 <div class="bg-surface border rounded-card p-5 {{ $isRight ? 'border-success/40' : 'border-error/40' }}">
                     <p class="flex items-start gap-2 text-body-md text-text font-medium">
-                        <span class="material-symbols-outlined text-[20px] {{ $isRight ? 'text-success' : 'text-error' }}" aria-label="{{ $isRight ? 'Correct' : 'Incorrect' }}">{{ $isRight ? 'check_circle' : 'cancel' }}</span>
+                        <span class="material-symbols-outlined text-[20px] {{ $isRight ? 'text-success-strong' : 'text-error' }}" aria-label="{{ $isRight ? 'Correct' : 'Incorrect' }}">{{ $isRight ? 'check_circle' : 'cancel' }}</span>
                         <span>{{ $question->body }}</span>
                     </p>
                     <ul class="mt-3 flex flex-col gap-1.5">

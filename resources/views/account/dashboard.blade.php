@@ -27,7 +27,7 @@
             <div class="bg-surface border border-border/40 rounded-card p-6">
                 <h2 class="text-label-sm font-semibold text-outline uppercase tracking-wider mb-3">Account status</h2>
                 @if ($user->hasVerifiedEmail())
-                    <p class="flex items-center gap-1.5 text-body-sm text-success font-medium">
+                    <p class="flex items-center gap-1.5 text-body-sm text-success-strong font-medium">
                         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check_circle</span>
                         Email verified
                     </p>

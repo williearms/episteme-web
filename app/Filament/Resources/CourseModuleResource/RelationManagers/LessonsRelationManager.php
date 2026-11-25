@@ -22,7 +22,7 @@ class LessonsRelationManager extends RelationManager
     {
         return $form->schema([
             TextInput::make('title')->required()->maxLength(255),
-            TextInput::make('position')->numeric()->integer()->minValue(1)->required()->default(1),
+            TextInput::make('position')->numeric()->integer()->minValue(1)->maxValue(65535)->required()->default(1),
             RichEditor::make('content')
                 ->required()
                 ->columnSpanFull()

@@ -65,7 +65,7 @@
                             </x-ui.button>
                         @elseif ($inCart)
                             <x-ui.button href="{{ route('cart.index') }}" variant="outline">
-                                <span class="material-symbols-outlined text-[18px] text-success" aria-hidden="true">check_circle</span>
+                                <span class="material-symbols-outlined text-[18px] text-success-strong" aria-hidden="true">check_circle</span>
                                 In your cart &mdash; view cart
                             </x-ui.button>
                         @else
@@ -80,7 +80,7 @@
                     @endauth
                 </div>
                 @if (session('status'))
-                    <p class="text-label-sm text-success -mt-2">{{ session('status') }}</p>
+                    <p class="text-label-sm text-success-strong -mt-2">{{ session('status') }}</p>
                 @endif
                 @if (session('error'))
                     <p class="text-label-sm text-error -mt-2">{{ session('error') }}</p>

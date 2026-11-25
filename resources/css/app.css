@@ -19,7 +19,7 @@
 
     --color-text: #131b2e;
     --color-text-muted: #3e484f;
-    --color-outline: #6e7980;
+    --color-outline: #626d74;
     --color-border: #bdc8d1;
 
     --color-primary: #00668a;
@@ -36,6 +36,7 @@
     --color-inverse-text: #faf8ff;
 
     --color-success: #10b981;
+    --color-success-strong: #047857; /* success as TEXT: #10b981 on white is only 2.5:1 */
     --color-error: #ba1a1a;
 
     /* Radius */
