@@ -20,7 +20,7 @@ This document translates that visual reference into the tokens and components im
 | `surface-strong` | `#E2E7FF` | `surface-container-high` | Hover fills, stronger chips |
 | `text` | `#131B2E` | `on-surface` | Primary text, headings |
 | `text-muted` | `#3E484F` | `on-surface-variant` | Body copy on light backgrounds |
-| `outline` | `#6E7980` | `outline` | Tertiary text, icon placeholders |
+| `outline` | `#626D74` (Stitch: `#6E7980`) | `outline` | Tertiary text, icon placeholders. Darkened slightly in the Phase 8 QA pass: the original was 4.0–4.5:1 on the tinted backgrounds, under the WCAG AA 4.5:1 minimum for small text. |
 | `border` | `#BDC8D1` (used at ~40% opacity — "hairline") | `outline-variant` | Card/section hairline borders |
 | `primary` | `#00668A` | `primary` | Links, labels, eyebrow text, icon accents |
 | `primary-hover` | `#006398` | `secondary` | Hover state for primary text/links |
@@ -30,6 +30,7 @@ This document translates that visual reference into the tokens and components im
 | `inverse` | `#283044` | `inverse-surface` | Dark "framework" band background |
 | `inverse-text` | `#FAF8FF` | `surface` (on inverse) | Text on the dark band |
 | `success` | `#10B981` (Tailwind `emerald-500`) | ad hoc in Stitch | Status dots ("Active Cohort", "All systems operational"); Phase 5 added `<x-ui.badge variant="success">` for paid orders/payments |
+| `success-strong` | `#047857` | — (added Phase 8) | `success` **as text**. `#10B981` on white is only 2.5:1, so use `text-success-strong` for any green text/icons; keep `success` for dots and tinted fills. |
 | `error` | `#BA1A1A` | `error` | Form/validation errors; Phase 5 added `<x-ui.badge variant="error">` for cancelled/failed/expired orders and payments |
 
 Semantic aliases used in components: `border` is always applied as `border-border/40` (a hairline,
@@ -96,9 +97,9 @@ the framework band (`shadow-[0_0_15px_rgba(56,189,248,0.3)]`) — kept as a one-
 | Button | `components/ui/button.blade.php` | Variants: `filled` (accent bg), `outline` (hairline border), `ghost` (text only). Sizes: `sm`, `md`, `lg`. |
 | Badge | `components/ui/badge.blade.php` | Pill label. Variants: `neutral`/`accent`/`lavender` (product-type tags), `meta` (meta tags), `success`/`error` (order/payment status — added Phase 5, using the `success`/`error` tokens that existed but had no consumer before). |
 | Input | `components/ui/input.blade.php` | Search-style input with optional leading icon slot. |
-| Section heading | `components/ui/section-heading.blade.php` | Eyebrow + H2 + optional lead paragraph, optional trailing slot (e.g. "View all →" link). |
+| Section heading | `components/ui/section-heading.blade.php` | Eyebrow + H2 + optional lead paragraph, optional trailing slot (e.g. "View all →" link). `as="h1"` makes it the page's `<h1>` (the catalog has no other title). |
 | Navbar | `components/layout/navbar.blade.php` | Sticky, blurred, logo + nav links + search + auth CTAs. |
-| Footer | `components/layout/footer.blade.php` | 5-column editorial footer with newsletter form. |
+| Footer | `components/layout/footer.blade.php` | Brand + Explore / Learn / Account link columns + a "Start learning" CTA. The Stitch newsletter form, placeholder `#` links, social links and "All systems operational" line were removed in Phase 8: none of them did anything. Every footer link goes to a real page. |
 | Product card | `components/product/card.blade.php` | Takes a single `:product` (Eloquent `Product`) prop. Renders thumbnail, type badge, level badge, a "★ Featured" tag when applicable, category name, title (accessible stretched-link to the detail page), short description, instructor, price. Rating/learner-count/duration were dropped from the card (Phase 3) — no reviews model exists, and duration is now type-specific (subtype tables), shown on the detail page instead of forcing a lowest-common-denominator string onto every card. |
 | Instructor card | `components/instructor/card.blade.php` | Avatar (falls back to initials when null), name, role, bio, optional skill tags, optional footer caption. The Phase 1 "View Faculty Profile →" link was removed — there's no instructor profile page, and a dead link would violate the "don't pretend it works" rule. |
 | Order status badge | `components/commerce/order-status-badge.blade.php` | Thin wrapper over `<x-ui.badge>`, colored by `OrderStatus::badgeVariant()`. **(Phase 5)** |

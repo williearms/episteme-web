@@ -797,6 +797,79 @@ Certificates, quiz time limits / attempt caps, question banks or randomization, 
 non-image attachments in lessons, video embeds, a raw-HTML source view (swap in TinyMCE if that's wanted — it
 needs a Filament plugin and a licence/API-key decision), and quiz analytics in the admin.
 
+## Phase 8 (part 1) — QA pass
+
+Deployment is deliberately **not** part of this pass (hosting not chosen yet). Automated browser
+E2E tests and a Pest migration are also still to do. This was a hands-on QA sweep; every bug found
+got a regression test. 242 tests pass (217 → 242).
+
+### How it was done
+
+1. **Route crawl** — ~65 URLs (every product incl. draft/archived, every category, auth, account,
+   learning, admin, orders of other users) requested as guest / plain user / admin; checked for any 5xx
+   and for the right 200/302/403/404.
+2. **Security probes** — reflected XSS in search, IDOR on orders/learning/quizzes, forged webhooks,
+   CSRF, response headers, rate limits, mass assignment.
+3. **Query audit** — query counts and repeated-query (N+1) detection for the main pages
+   (max 25 queries; nothing repeated ≥ 5×).
+4. **Browser DOM audit** — headings, labels, alt text, unnamed controls, duplicate ids, dead links,
+   horizontal overflow, console errors; at 1280 px **and 375 px**.
+5. **Production-cache compatibility** — `config:cache`, `route:cache`, `view:cache`, `event:cache`,
+   `filament:cache-components` all work and the app serves normally; no `env()` outside `config/`.
+6. **Contrast** — WCAG ratios computed for the token pairs.
+7. **Edge cases** — absurd numbers, double-submit, boundary values.
+
+### Bugs found and fixed
+
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| 1 | **Forged payment webhook accepted when `MIDTRANS_SERVER_KEY` is empty** — the signature is `sha512(… + key)`, computable by anyone with an empty key, so anyone could mark an order paid (and grant access). | **Critical** | A missing key now rejects every webhook (and `charge()` refuses to run). |
+| 2 | Malformed webhook body (array where a string is expected) → 500 | Medium | Every signed field must be present and scalar; otherwise a clean 403. |
+| 3 | **Rate limits shared one bucket.** Laravel's numeric `throttle:N,1` keys by user id (or IP) only, so five login attempts also blocked "forgot password", and cart clicks could 429 checkout. (Pre-existing from Phase 4.) | Medium | Named limiters in `AppServiceProvider` (`login`, `register`, `forgot-password`, `checkout`, `quiz`, …), each with its own key. |
+| 4 | No throttle on `register`, `reset-password`, password change, cart, **checkout/retry (which call the payment API)**, lesson progress, quiz submit, profile update | Medium | Added via the named limiters. |
+| 5 | **No security headers** and `X-Powered-By` leaked the PHP version | Medium | `SecurityHeaders` middleware (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS only over HTTPS in production); `X-Powered-By` removed. No CSP — see below. |
+| 6 | Quantity/price/total had no upper bound → **500** (unsigned-int overflow) on cart update and checkout | Medium | Per-line quantity ≤ 10, order total ≤ Rp2.000.000.000, admin price ≤ Rp100.000.000, and bounds on other admin numeric fields. |
+| 7 | Double-clicking "Place order" could create two orders (both requests read the same cart) | Medium | Cart rows are `lockForUpdate`d inside the checkout transaction; the loser bails to the cart. |
+| 8 | Times shown in UTC (an order "placed 06:49" at 13:49 WIB) | Medium | `APP_TIMEZONE`, default `Asia/Jakarta` (also in `.env.example`). Existing rows written under UTC will show 7 h off; irrelevant for a fresh database. |
+| 9 | Generic, unstyled Laravel error pages | Low | Branded 404/403/419/429; self-contained 500/503 (no layout/DB/asset dependency). |
+| 10 | Footer: 12 `#` placeholder links, anchors that only worked on the homepage, a **newsletter form that did nothing**, a static "All systems operational" claim; two dead homepage CTAs (`#catalog`, "Request Cohort Syllabus") | Low | Footer rewritten with only real links; homepage CTAs point at the catalog/bootcamps. |
+| 11 | Catalog page had no `<h1>` | Low | `section-heading` accepts `as="h1"`. |
+| 12 | Contrast failures: `text-outline` 4.0–4.5:1; green text 2.5:1; accent badge 3.0:1 | Low | `outline` → `#626D74`, new `success-strong` for green text, accent badge text → dark. |
+
+Verified **fine**: reflected XSS (escaped), IDOR on orders/learning/quizzes (403/404), CSRF, archived
+/draft products (404), no 5xx on any crawled URL, no horizontal overflow at 375 px on any page,
+console clean, query counts, production caches, labels/`autocomplete` on auth forms, product-type
+toggling in the admin form.
+
+### Needs a product decision (not changed)
+
+- **Fabricated homepage content.** "98.4% Completion Rigor", "Top 1% Domain Specialists" and the two
+  testimonials come from the Stitch mock-up; they are not real data. Replace with real content or
+  remove before launch.
+- **No Privacy Policy / Terms of Service pages** (the placeholder footer links were removed). Needed
+  before taking real payments; legal text has to come from you.
+- **Email verification is not enforced** — unverified users can buy and learn (Phase 4 decision).
+- **Locale is English** (`APP_LOCALE=en`) so dates print as "25 November 2026" while the content is
+  Indonesian.
+- **No Content-Security-Policy.** The storefront loads fonts from Google, Vite is a separate origin in
+  dev, and Filament/Livewire use inline scripts, so a useful CSP needs nonces and per-environment
+  tuning. Do it with deployment.
+- Product images are `placehold.co` URLs when a product has no thumbnail (an external dependency).
+
+### Production checklist (for the deploy step)
+
+`APP_ENV=production`, `APP_DEBUG=false`, a real `APP_KEY`, `APP_URL` with https,
+`SESSION_SECURE_COOKIE=true`, real `MIDTRANS_*` keys (and the webhook URL in the Midtrans
+dashboard), a real mail driver (currently `log`), persistent/object storage for
+`lesson-attachments` and private digital files, `php artisan storage:link`, `expose_php=Off`, run
+`php artisan optimize` + `filament:cache-components`, and give the container a non-dev OPcache
+config (the dev one disables timestamp validation).
+
+### Still to do in Phase 8
+
+Automated browser E2E for the critical journeys, optional Pest migration, a deploy target + production
+Dockerfile + CI, and the product decisions above.
+
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
 Two separate issues blocked visual QA for a while; both are now fixed and documented so they don't need
