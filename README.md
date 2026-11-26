@@ -50,7 +50,7 @@ The journey it supports: **Discover → Explore → Understand → Purchase → 
 | Admin panel | Filament 3 |
 | Payments | Midtrans Snap (sandbox for development) |
 | Environment | Docker (Laravel Sail) |
-| Testing | PHPUnit feature tests |
+| Testing | PHPUnit feature tests, Playwright end-to-end tests |
 | Development Tools | Git, GitHub, AI-Assisted Development |
 
 ## 🚀 Getting Started
@@ -162,6 +162,19 @@ docker compose exec laravel.test php artisan test
 
 The suite covers the catalog, authentication, cart and checkout, payments and webhooks, enrollment, learning access, quizzes, and the admin panel.
 
+### Browser (end-to-end) tests
+
+Playwright tests drive a real browser through registration and login, a free course with its quiz, a paid checkout up to the payment notification, access control, the admin panel, and a phone-sized layout check. From the project root:
+
+```bash
+bash scripts/e2e.sh
+```
+
+- Uses its own `e2e` database and app server (port 8011) — **your development data is not touched**.
+- Payments go to a local Midtrans stand-in; nothing is sent to Midtrans.
+- The first run downloads Chromium into the container (a few hundred MB); it is downloaded again if the container is recreated.
+- Pass Playwright arguments through, e.g. `bash scripts/e2e.sh tests/e2e/checkout.spec.mjs`. Reports and failure traces land in `storage/e2e/`.
+
 ## 📚 Documentation
 
 | File | Contents |
@@ -172,7 +185,7 @@ The suite covers the catalog, authentication, cart and checkout, payments and we
 
 ## 📁 Project Status
 
-🚧 **In active development.** The product, commerce, learning, and admin features are built and tested; the final quality-assurance and production-readiness phase is still ahead. Behaviour and architecture may still change.
+🚧 **In active development.** The product, commerce, learning, and admin features are built, QA'd, and covered by automated tests; deployment and production hardening are still ahead. Behaviour and architecture may still change.
 
 ## 🗺️ Roadmap
 
@@ -185,7 +198,10 @@ The suite covers the catalog, authentication, cart and checkout, payments and we
 - [x] **Phase 6** – Learning: enrollment, course player, live access, downloads
 - [x] **Phase 7** – Admin panel
 - [x] Quizzes, rich-text lessons, and lesson images
-- [ ] **Phase 8** – QA and production: end-to-end tests, in-depth QA, deployment
+- [ ] **Phase 8** – QA and production
+  - [x] In-depth QA pass and fixes
+  - [x] End-to-end browser tests
+  - [ ] Deployment and CI
 - [ ] Certificates
 - [ ] Coupons, refunds, and seat/capacity limits
 - [ ] Finer-grained roles and permissions

@@ -867,8 +867,58 @@ config (the dev one disables timestamp validation).
 
 ### Still to do in Phase 8
 
-Automated browser E2E for the critical journeys, optional Pest migration, a deploy target + production
-Dockerfile + CI, and the product decisions above.
+Optional Pest migration, a deploy target + production Dockerfile + CI (run both test suites there),
+dependency updates (below), and the product decisions above.
+
+## Phase 8 (part 2) — End-to-end tests
+
+Playwright (`tests/e2e/`, Chromium), run with `bash scripts/e2e.sh`. 14 tests (2 setup + 12
+scenarios); they passed twice back to back.
+
+| Spec | Journey |
+|---|---|
+| `auth` | register → logout → login; wrong password; redirect back to the intended page after login |
+| `learning` | free course: add to cart → button changes → checkout → My Learning → lesson progress → fail quiz → retry and pass → product page offers learning |
+| `checkout` | paid course: gateway receives the server price → pending grants nothing → forged and underpaid notifications refused → genuine (twice) settles → access granted once; declined → retry → access |
+| `access` | guests redirected; non-admin 403; unowned learning 404; another customer's order 403 |
+| `admin` | create and publish a webinar → visible publicly without the join link; edit a lesson in the rich editor → student sees the formatting |
+| `mobile` | no sideways scroll at 375 px on 12 pages |
+
+### How it stays isolated and deterministic
+
+- **Own database** (`e2e`, created by the script) and **own server** on port 8011 with environment
+  overrides (`tests/e2e/env.mjs`). `e2e:reset` (`migrate:fresh` + `E2eSeeder`) refuses to run unless
+  both `APP_ENV=e2e` and the connected database is `e2e`; the seeder (which creates a fixed-password
+  admin) refuses outside `e2e`. PHPUnit covers both guards.
+- **Local Midtrans stand-in** (`tests/e2e/stub/`). `MIDTRANS_SNAP_URL` redirects the gateway to it;
+  the override is **ignored when `APP_ENV=production`** (tested). Tests then send real signed webhooks.
+- Built assets go to `public/build-e2e` with their own "hot" file, so a running Vite dev server
+  neither affects the tests nor is affected by them.
+- One worker (shared database); the admin signs in once and the session is reused, so the login rate
+  limit isn't tripped.
+- Every test also fails on any uncaught JavaScript error.
+- The suite was checked for teeth: with access granting temporarily removed from the webhook, the
+  paid-checkout test failed at the access assertion.
+
+### Found by this suite
+
+- **Filament 3.3.55 bug:** closing a modal that contains a `RichEditor` throws
+  `Cannot set properties of undefined (setting 'value')` from `rich-editor.js` (its state watcher runs
+  after the element is removed). It fires after the save and has no visible effect. `fixtures.mjs`
+  ignores exactly that message *from that file*; remove the exception once Filament is updated.
+
+### Not covered
+
+Real Midtrans (needs sandbox keys and network), password reset and email verification (covered by
+PHPUnit), file uploads in the admin, other browsers than Chromium, and visual regression.
+
+### Dependency advisories (as of 2026-11-26, not yet applied)
+
+`composer audit`: 12 advisories in `laravel/framework`, `league/commonmark` (one high), `league/csv`,
+and `symfony/{http-foundation,http-kernel,mime,routing,yaml}`; a `composer update` of those picks up
+newer releases. `npm audit`: 4 (2 critical, 2 high) in dev-only tooling (`shell-quote` via
+`concurrently`, `vite`, `source-map-js`); `npm audit --omit=dev` is clean. Apply and re-run both
+suites before deploying.
 
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
