@@ -19,6 +19,9 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Tests often run as another OS user (root in the container). Compiled views must not be
+             shared with the web server: it can't touch() files it doesn't own, and pages 500. -->
+        <env name="VIEW_COMPILED_PATH" value="storage/framework/testing/views"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

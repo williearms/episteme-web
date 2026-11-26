@@ -912,13 +912,27 @@ scenarios); they passed twice back to back.
 Real Midtrans (needs sandbox keys and network), password reset and email verification (covered by
 PHPUnit), file uploads in the admin, other browsers than Chromium, and visual regression.
 
-### Dependency advisories (as of 2026-11-26, not yet applied)
+### Dependency updates (2026-11-26)
 
-`composer audit`: 12 advisories in `laravel/framework`, `league/commonmark` (one high), `league/csv`,
-and `symfony/{http-foundation,http-kernel,mime,routing,yaml}`; a `composer update` of those picks up
-newer releases. `npm audit`: 4 (2 critical, 2 high) in dev-only tooling (`shell-quote` via
-`concurrently`, `vite`, `source-map-js`); `npm audit --omit=dev` is clean. Apply and re-run both
-suites before deploying.
+**PHP — resolved, `composer audit` is clean.** A `--minimal-changes` update of only the affected
+packages (no major bumps): `laravel/framework` 13.32.0 → 13.44.1, `league/commonmark` 2.10.9,
+`league/csv` 9.29.1, `symfony/{http-foundation,http-kernel,mime,routing,yaml}` 8.1.12,
+`laravel/prompts` 0.3.28. (12 advisories before.)
+
+**npm — 3 of 4 resolved.** `concurrently` 10.0.7, `shell-quote` 1.12.0 (was critical),
+`source-map-js` 1.2.4. **Still open: `vite` 8.3.0 (high, dev server only; `npm audit --omit=dev` is
+clean).** npm 12 refuses to re-resolve anything in this tree (`EALLOWREMOTE` on the bundled tarball
+`@tailwindcss/oxide-wasm32-wasi`, even though it is the official registry URL), so the three leaf
+packages were patched in `package-lock.json` with the registry's version and integrity hashes and
+verified by `npm ci`. `vite` ≥ 8.3.3 also needs a newer `rolldown` tree, too large to hand-edit; it
+needs either a one-off `npm update vite --allow-remote=all` (relaxes npm's safety setting for that
+command) or an npm release that fixes the false positive. `npm ci` / `npm install` work as before.
+
+**Found while verifying:** Laravel 13.44 `touch()`es compiled views, which fails (500) on files owned
+by another OS user. PHPUnit running as root had been writing compiled views the web user then
+couldn't touch. Both test suites passed; only a smoke check of the dev server showed it. PHPUnit now
+uses its own `VIEW_COMPILED_PATH`. **In production, run `artisan` cache commands as the web server
+user** (or `chown` `storage/` and `bootstrap/cache/` afterwards).
 
 ## Resolved: environment performance issues (2026-09-18 → 2026-09-21)
 
