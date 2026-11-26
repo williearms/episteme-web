@@ -7,6 +7,7 @@ use App\Payments\PaymentGateway;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
                 'midtrans' => new MidtransGateway(
                     serverKey: config('payment.midtrans.server_key'),
                     isProduction: (bool) config('payment.midtrans.is_production'),
+                    // Never let a stray env var redirect real payments somewhere else.
+                    snapUrl: app()->isProduction() ? null : config('payment.midtrans.snap_url'),
                 ),
                 default => throw new \RuntimeException(
                     'Unsupported PAYMENT_PROVIDER: '.config('payment.provider')
@@ -35,6 +38,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+
+        // The E2E server uses the built assets even while a developer's Vite server is running:
+        // point Laravel at a "hot" file that never exists, and at its own build folder.
+        if ($this->app->environment('e2e')) {
+            Vite::useHotFile(storage_path('framework/e2e-vite.hot'));
+            Vite::useBuildDirectory('build-e2e');
+        }
     }
 
     /**

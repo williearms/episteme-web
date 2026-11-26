@@ -18,6 +18,7 @@ class MidtransGateway implements PaymentGateway
     public function __construct(
         private readonly ?string $serverKey,
         private readonly bool $isProduction = false,
+        private readonly ?string $snapUrl = null,
     ) {}
 
     public function charge(Order $order, Payment $payment): array
@@ -101,6 +102,10 @@ class MidtransGateway implements PaymentGateway
 
     private function baseUrl(): string
     {
+        if ($this->snapUrl !== null && $this->snapUrl !== '') {
+            return rtrim($this->snapUrl, '/');
+        }
+
         return $this->isProduction
             ? 'https://app.midtrans.com/snap/v1'
             : 'https://app.sandbox.midtrans.com/snap/v1';

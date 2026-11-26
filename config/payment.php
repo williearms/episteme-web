@@ -17,5 +17,7 @@ return [
         'server_key' => env('MIDTRANS_SERVER_KEY'),
         'client_key' => env('MIDTRANS_CLIENT_KEY'),
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+        // Test-only: points Snap at a local stand-in (the E2E suite). Ignored when APP_ENV=production.
+        'snap_url' => env('MIDTRANS_SNAP_URL'),
     ],
 ];

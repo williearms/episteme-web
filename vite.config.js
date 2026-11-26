@@ -12,6 +12,8 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
+            // The E2E run builds into its own folder so it never leaves stale assets for the dev site.
+            buildDirectory: process.env.VITE_BUILD_DIR || 'build',
         }),
         tailwindcss(),
     ],

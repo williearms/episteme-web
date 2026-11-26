@@ -41,3 +41,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Playwright run output (reports, traces, saved sessions)
+/storage/e2e
+/public/build-e2e
